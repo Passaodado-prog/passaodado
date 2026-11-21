@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#101522">
+    <meta name="theme-color" content="#0a1320">
     <title>Passa o Dado | Menos telas. Mais momentos.</title>
     <link rel="icon" href="data:,">
     <style>
@@ -14,7 +14,11 @@
         body {
             margin: 0;
             color: #fff;
-            background: radial-gradient(ellipse at 50% 49%, #263b60, #131c30 50%, #080d17);
+            background:
+                radial-gradient(ellipse at 50% 54%, #284765 0%, transparent 58%),
+                radial-gradient(ellipse at 1% 90%, #133840, transparent 60%),
+                radial-gradient(ellipse at 96% 9%, #1f2c49, transparent 70%),
+                #0a1320;
             background-attachment: fixed;
             font-family: Arial, Helvetica, sans-serif;
         }
@@ -28,7 +32,48 @@
             outline-offset: 4px;
         }
 
+        .board-pattern {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .pattern-rail {
+            position: absolute;
+            inset-block: 0;
+            width: min(27vw, 350px);
+            overflow: hidden;
+        }
+
+        .pattern-left {
+            left: 0;
+            mask-image: linear-gradient(90deg, #000 0%, #000 49%, transparent 100%);
+        }
+
+        .pattern-right {
+            right: 0;
+            mask-image: linear-gradient(270deg, #000 0%, #000 49%, transparent 100%);
+        }
+
+        .pattern-rail canvas {
+            display: block;
+            width: 100%;
+            animation: pattern-drift 46s linear -7s infinite;
+        }
+
+        .pattern-right canvas {
+            animation-duration: 54s;
+            animation-delay: -15s;
+            animation-direction: reverse;
+        }
+
+        @keyframes pattern-drift {
+            to { transform: translateY(-50%); }
+        }
+
         .experience {
+            position: relative;
             display: grid;
             grid-template-rows: auto minmax(112px, 1fr) auto;
             height: 100vh;
@@ -68,6 +113,7 @@
             color: #c4d5ed;
             font-size: clamp(0.8rem, 2vw, 0.95rem);
             line-height: 1.45;
+            text-shadow: 0 1px 5px #0a1320;
         }
 
         .arena {
@@ -77,21 +123,29 @@
             overflow: hidden;
         }
 
-        .arena canvas {
+        .dice-canvas {
             position: absolute;
             inset: 0;
             display: block;
             width: 100%;
             height: 100%;
-            cursor: grab;
             touch-action: none;
         }
 
-        .arena canvas[hidden] {
+        .dice-canvas[hidden] {
             display: none;
         }
 
-        .arena canvas.dragging {
+        .dice-canvas:focus-visible {
+            outline: 2px solid #b1deff;
+            outline-offset: -4px;
+        }
+
+        .dice-canvas.grabbable {
+            cursor: grab;
+        }
+
+        .dice-canvas.dragging {
             cursor: grabbing;
         }
 
@@ -110,26 +164,12 @@
             padding: 4px 16px clamp(45px, 6.8vh, 68px);
         }
 
-        .roll {
-            padding: 8px 13px;
-            border: 1px solid transparent;
-            border-radius: 6px;
-            background: transparent;
-            color: #80c8ff;
-            font-size: 0.85rem;
+        .roll-result {
+            min-height: 1.5em;
+            margin: 0;
+            color: #a6dfff;
+            font-size: clamp(1.05rem, 3vw, 1.25rem);
             font-weight: 800;
-            letter-spacing: 0.19em;
-            cursor: pointer;
-        }
-
-        .roll:hover:not(:disabled) {
-            border-color: #66bdff55;
-            background: #66bdff14;
-        }
-
-        .roll:disabled {
-            cursor: default;
-            opacity: 0.65;
         }
 
         .hint {
@@ -137,6 +177,7 @@
             color: #b0c2dd;
             font-size: 0.8rem;
             line-height: 1.45;
+            text-shadow: 0 1px 5px #0a1320;
         }
 
         .skip,
@@ -161,6 +202,7 @@
             right: max(12px, env(safe-area-inset-right));
             bottom: max(9px, env(safe-area-inset-bottom));
             font-size: 0.8rem;
+            text-shadow: 0 1px 5px #0a1320;
         }
 
         .welcome {
@@ -174,7 +216,7 @@
             overflow: auto;
             border: 0;
             color: #fff;
-            background: radial-gradient(ellipse at center, #243957, #080d17 82%);
+            background: radial-gradient(ellipse at center, #244560, #0a1320 82%);
             text-align: center;
         }
 
@@ -233,6 +275,17 @@
             font-size: 0.85rem;
         }
 
+        @media (max-width: 600px) {
+            .pattern-rail {
+                width: 29vw;
+                opacity: 0.74;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .pattern-rail canvas { animation: none; }
+        }
+
         @media (max-height: 500px) {
             .hero {
                 padding-top: 12px;
@@ -271,6 +324,11 @@
     </script>
 </head>
 <body>
+    <div class="board-pattern" aria-hidden="true">
+        <div class="pattern-rail pattern-left"><canvas></canvas></div>
+        <div class="pattern-rail pattern-right"><canvas></canvas></div>
+    </div>
+
     <main class="experience">
         <header class="hero">
             <p class="brand">PASSA <span>O</span> DADO</p>
@@ -279,7 +337,8 @@
         </header>
 
         <div class="arena" id="arena">
-            <canvas id="dice-canvas" aria-hidden="true" hidden></canvas>
+            <canvas class="dice-canvas" id="dice-canvas" role="button" tabindex="0"
+                aria-label="Rolar o dado" aria-describedby="hint" aria-disabled="true" hidden></canvas>
             <p class="scene-status" id="scene-status" role="status" hidden></p>
             <noscript>
                 <p class="scene-status">Ative o JavaScript para rolar o dado.</p>
@@ -287,7 +346,7 @@
         </div>
 
         <footer class="controls">
-            <button class="roll" id="roll" type="button" aria-describedby="hint" disabled>ROLAR O DADO</button>
+            <p class="roll-result" id="roll-result" role="status" aria-atomic="true"></p>
             <p class="hint" id="hint">Clique, toque ou arraste o dado e solte para lançar.</p>
             <button class="skip" id="skip" type="button" aria-haspopup="dialog" aria-controls="welcome">Pular animação</button>
         </footer>
@@ -306,48 +365,150 @@
     </dialog>
 
     <script type="module">
-        const elementById = (id, type) => {
-            const element = document.getElementById(id);
-            return element instanceof type ? element : null;
-        };
-
-        const arena = elementById("arena", HTMLDivElement);
-        const canvas = elementById("dice-canvas", HTMLCanvasElement);
-        const sceneStatus = elementById("scene-status", HTMLParagraphElement);
-        const rollButton = elementById("roll", HTMLButtonElement);
-        const skipButton = elementById("skip", HTMLButtonElement);
-        const welcome = elementById("welcome", HTMLDialogElement);
-        const libraryButton = elementById("library", HTMLButtonElement);
-        const libraryStatus = elementById("library-status", HTMLParagraphElement);
+        const arena = document.getElementById("arena");
+        const canvas = document.getElementById("dice-canvas");
+        const sceneStatus = document.getElementById("scene-status");
+        const result = document.getElementById("roll-result");
+        const skip = document.getElementById("skip");
+        const welcome = document.getElementById("welcome");
+        const library = document.getElementById("library");
+        const libraryStatus = document.getElementById("library-status");
 
         let welcomeShown = false;
-        let rollDice = null;
 
         function showWelcome() {
-            if (!welcome?.isConnected || welcome.open) return;
+            if (!welcome?.isConnected || welcome.open || typeof welcome.showModal !== "function") return;
             welcome.showModal();
             welcomeShown = true;
         }
 
         function setSceneStatus(message = "") {
-            if (canvas) canvas.hidden = Boolean(message);
-            if (rollButton) rollButton.disabled = Boolean(message);
+            if (canvas instanceof HTMLCanvasElement) canvas.hidden = Boolean(message);
             if (sceneStatus) {
                 sceneStatus.textContent = message;
                 sceneStatus.hidden = !message;
             }
         }
 
-        rollButton?.addEventListener("click", () => rollDice?.());
-        skipButton?.addEventListener("click", showWelcome);
-        libraryButton?.addEventListener("click", () => {
+        skip?.addEventListener("click", showWelcome);
+        library?.addEventListener("click", () => {
             if (libraryStatus) {
                 libraryStatus.textContent = "A biblioteca de jogos ainda será conectada.";
             }
         });
 
+        function startPattern() {
+            if (typeof Path2D !== "function") return;
+
+            // Contornos originais de peças e acessórios de jogos de tabuleiro.
+            const pieces = [
+                {
+                    path: "M5 15 23 5 43 14V34L25 44 5 35ZM5 15l20 10 18-11M25 25v19",
+                    dots: [[24, 15], [11, 24], [20, 33], [31, 28], [37, 30], [36, 22]]
+                },
+                {
+                    path: "M30 12a6 6 0 1 1-12 0 6 6 0 1 1 12 0ZM15 22h18v5h-4c1 6 4 9 9 12v4H10v-4c5-3 8-6 9-12h-4ZM10 39h28"
+                },
+                {
+                    path: "M12 4h24a3 3 0 0 1 3 3v34a3 3 0 0 1-3 3H12a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3ZM9 24h30",
+                    dots: [[16, 12], [24, 15], [32, 18], [17, 30], [31, 30], [17, 38], [31, 38]]
+                },
+                {
+                    path: "M14 13 5 15l5 27 23-4M20 5l22 5-7 31-22-5ZM28 17c-4 1-8 4-8 7 0 4 4 4 7 1 1 4 5 5 7 2 1-3-2-7-6-10ZM26 26l-2 5 5 1M22 10l3 1M31 34l3 1"
+                },
+                {
+                    path: "M18 11a6 6 0 1 1 12 0c0 2-1 4-2 5l12 4 2 6-5 3-6-2 3 12-6 3-4-7-4 7-6-3 3-12-6 2-5-3 2-6 12-4c-1-1-2-3-2-5Z"
+                },
+                {
+                    path: "M5 5h38v38H5ZM11 11h26v26H11ZM20 11v26M28 11v26M11 20h26M11 28h26M23 23h2v2h-2Z"
+                },
+                {
+                    path: "M12 6h6v5h3V6h6v5h3V6h6v12l-6 5 3 13 5 3v4H10v-4l5-3 3-13-6-5ZM12 18h24M18 23h12M15 36h18M10 39h28"
+                },
+                {
+                    path: "M6 12h13c-3-5 0-8 5-8s8 3 5 8h12v11c-5-3-8 0-8 5s3 8 8 5v10H28c3-5 0-8-5-8s-8 3-5 8H6V31c5 3 8 0 8-5s-3-8-8-5Z"
+                }
+            ].map(({ path, dots }) => ({ path: new Path2D(path), dots }));
+
+            // Cada coluna repete a mesma faixa duas vezes para rolar sem emenda.
+            const positions = [
+                [0.23, 0.07, 1.19, -0.21], [0.72, 0.16, 0.84, 0.27],
+                [0.39, 0.24, 1.01, -0.29], [0.14, 0.34, 0.78, 0.20],
+                [0.57, 0.41, 1.22, -0.24], [0.80, 0.52, 0.68, 0.17],
+                [0.23, 0.57, 1.18, 0.28], [0.57, 0.68, 0.84, -0.15],
+                [0.12, 0.74, 0.77, -0.21], [0.74, 0.82, 1.03, 0.31],
+                [0.36, 0.91, 1.12, 0.16], [0.81, 0.95, 0.57, -0.24]
+            ];
+            const colors = ["#75abc0", "#86afd5", "#72a9a9"];
+            const rails = [...document.querySelectorAll(".pattern-rail")];
+            let pending = false;
+
+            function paint() {
+                pending = false;
+                rails.forEach((rail, side) => {
+                    const layer = rail.querySelector("canvas");
+                    if (!(layer instanceof HTMLCanvasElement) || !layer.isConnected) return;
+
+                    const width = rail.clientWidth;
+                    const period = Math.max(680, rail.clientHeight);
+                    if (width < 1) return;
+
+                    const ratio = Math.min(window.devicePixelRatio || 1, 1.5, 4096 / (period * 2));
+                    const bufferWidth = Math.round(width * ratio);
+                    const bufferHeight = Math.round(period * 2 * ratio);
+                    const height = `${period * 2}px`;
+                    if (layer.width === bufferWidth && layer.height === bufferHeight && layer.style.height === height) return;
+
+                    const ctx = layer.getContext("2d");
+                    if (!ctx) return;
+
+                    layer.width = bufferWidth;
+                    layer.height = bufferHeight;
+                    layer.style.height = height;
+                    ctx.setTransform(bufferWidth / width, 0, 0, bufferHeight / (period * 2), 0, 0);
+                    ctx.lineJoin = "round";
+                    ctx.lineCap = "round";
+                    ctx.lineWidth = 1.45;
+                    const baseSize = Math.min(69, Math.max(28, width * 0.24));
+
+                    for (let copy = 0; copy < 2; copy += 1) {
+                        positions.forEach(([x, y, scale, tilt], index) => {
+                            const piece = pieces[(index + side * 3) % pieces.length];
+                            const size = baseSize * scale / 48;
+                            ctx.save();
+                            ctx.translate(width * (side ? 1 - x : x), period * (copy + y));
+                            ctx.rotate(side ? -tilt : tilt);
+                            ctx.scale(size, size);
+                            ctx.translate(-24, -24);
+                            ctx.globalAlpha = index % 3 === 0 ? 0.62 : 0.43;
+                            ctx.strokeStyle = colors[(index + side) % colors.length];
+                            ctx.stroke(piece.path);
+
+                            if (piece.dots) {
+                                ctx.fillStyle = ctx.strokeStyle;
+                                for (const [dx, dy] of piece.dots) {
+                                    ctx.beginPath();
+                                    ctx.arc(dx, dy, 1.55, 0, Math.PI * 2);
+                                    ctx.fill();
+                                }
+                            }
+
+                            ctx.restore();
+                        });
+                    }
+                });
+            }
+
+            paint();
+            window.addEventListener("resize", () => {
+                if (pending) return;
+                pending = true;
+                requestAnimationFrame(paint);
+            });
+        }
+
         async function startScene() {
-            if (!arena?.isConnected || !canvas?.isConnected || !arena.contains(canvas)) {
+            if (!arena?.isConnected || !(canvas instanceof HTMLCanvasElement) || !arena.contains(canvas)) {
                 setSceneStatus("O dado 3D está indisponível.");
                 return;
             }
@@ -386,68 +547,63 @@
             camera.position.z = 500;
             camera.updateMatrixWorld();
 
-            const mainLight = new THREE.DirectionalLight(0xf3f8ff, 3);
-            mainLight.position.set(-3, 5, 7);
-            const rimLight = new THREE.DirectionalLight(0x83caff, 1.5);
-            rimLight.position.set(4, 1, -4);
-            scene.add(mainLight, rimLight, new THREE.HemisphereLight(0xd8ecff, 0x354c88, 1.65));
+            const key = new THREE.DirectionalLight(0xf3f8ff, 3);
+            key.position.set(-3, 5, 7);
+            const rim = new THREE.DirectionalLight(0x83caff, 1.5);
+            rim.position.set(4, 1, -4);
+            scene.add(key, rim, new THREE.HemisphereLight(0xd8ecff, 0x354c88, 1.65));
 
             const cornerRadius = 0.22;
-            const pipDepth = 0.046;
+            const pipOffset = 0.0025;
             const cornerCore = 1 - cornerRadius;
-            const enclosingRadius = Math.sqrt(3) + pipDepth;
+            const enclosingRadius = Math.sqrt(3) + pipOffset;
             const body = new THREE.Mesh(
                 new RoundedBoxGeometry(2, 2, 2, 4, cornerRadius),
                 new THREE.MeshPhysicalMaterial({
-                    color: 0x0755d8,
-                    metalness: 0.21,
-                    roughness: 0.25,
-                    clearcoat: 1,
-                    clearcoatRoughness: 0.19
+                    color: 0x0755d8, metalness: 0.21, roughness: 0.25,
+                    clearcoat: 1, clearcoatRoughness: 0.19
                 })
             );
 
+            const { pips, landings } = makeFaces(THREE, pipOffset);
             const dice = new THREE.Group();
             dice.rotation.set(0.37, -0.58, -0.19);
-            dice.add(body, makePips(THREE, pipDepth));
+            dice.add(body, pips);
             scene.add(dice);
 
-            const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
-            const idleSpin = new THREE.Vector3(0.27, 0.41, 0.12);
-            const still = new THREE.Vector3();
-            const angularVelocity = motionPreference.matches ? still.clone() : idleSpin.clone();
+            const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
             const velocity = new THREE.Vector2();
-            const dragVelocity = new THREE.Vector2();
-            const raycaster = new THREE.Raycaster();
-            const pointer = new THREE.Vector2();
-            const hit = [];
-            const rotationMatrix = new THREE.Matrix4();
+            const angularVelocity = new THREE.Vector3();
             const rotation = new THREE.Quaternion();
             const rotationStep = new THREE.Euler();
+            const rotationMatrix = new THREE.Matrix4();
+            const raycaster = new THREE.Raycaster();
+            const pointer = new THREE.Vector2();
+            const hits = [];
+            const clamp = THREE.MathUtils.clamp;
 
             let width = 0;
             let height = 0;
             let frame = null;
             let lastTime = null;
-            let revealIn = null;
             let drag = null;
+            let roll = null;
             let contextReady = !context.isContextLost();
-            let useProjectedBounds = true;
             let motionReady = true;
+            let projectBounds = true;
 
             function clampPosition(bounce = false) {
-                // O grid reserva linhas para os textos. Os limites do dado são os da arena.
+                // As linhas do layout mantêm os textos fora da área de colisão.
                 let halfWidth = enclosingRadius;
-                let halfHeight = halfWidth;
+                let halfHeight = enclosingRadius;
 
-                if (useProjectedBounds) {
+                if (projectBounds) {
                     try {
                         const m = rotationMatrix.makeRotationFromQuaternion(dice.quaternion).elements;
-                        halfWidth = cornerCore * (Math.abs(m[0]) + Math.abs(m[4]) + Math.abs(m[8])) + cornerRadius + pipDepth;
-                        halfHeight = cornerCore * (Math.abs(m[1]) + Math.abs(m[5]) + Math.abs(m[9])) + cornerRadius + pipDepth;
+                        halfWidth = cornerCore * (Math.abs(m[0]) + Math.abs(m[4]) + Math.abs(m[8])) + cornerRadius + pipOffset;
+                        halfHeight = cornerCore * (Math.abs(m[1]) + Math.abs(m[5]) + Math.abs(m[9])) + cornerRadius + pipOffset;
                     } catch {
-                        // Usa a esfera que envolve o dado se o cálculo da projeção falhar.
-                        useProjectedBounds = false;
+                        projectBounds = false;
                     }
                 }
 
@@ -455,48 +611,97 @@
                 const limitX = Math.max(0, width / 2 - scale * halfWidth - 4);
                 const limitY = Math.max(0, height / 2 - scale * halfHeight - 4);
                 const { position } = dice;
-                const x = THREE.MathUtils.clamp(position.x, -limitX, limitX);
-                const y = THREE.MathUtils.clamp(position.y, -limitY, limitY);
+                const x = clamp(position.x, -limitX, limitX);
+                const y = clamp(position.y, -limitY, limitY);
 
                 if (bounce && (position.x - x) * velocity.x > 0) velocity.x *= -0.78;
                 if (bounce && (position.y - y) * velocity.y > 0) velocity.y *= -0.78;
                 position.set(x, y, 0);
             }
 
-            function applyRotation(x, y, z) {
+            function rotate(x, y, z) {
                 rotation.setFromEuler(rotationStep.set(x, y, z));
                 dice.quaternion.premultiply(rotation).normalize();
             }
 
-            function advance(dt) {
-                if (!drag) {
-                    if (motionPreference.matches) {
-                        velocity.set(0, 0);
-                        angularVelocity.set(0, 0, 0);
+            function move(dt, friction) {
+                dice.position.x += velocity.x * dt;
+                dice.position.y += velocity.y * dt;
+                clampPosition(true);
+                velocity.multiplyScalar(Math.exp(-friction * dt));
+            }
+
+            function landingFor(value) {
+                // Seleciona a rotação mais próxima com a face sorteada voltada para a câmera.
+                const choices = landings[value - 1];
+                let nearest = choices[0];
+                let best = -1;
+
+                for (const pose of choices) {
+                    const similarity = Math.abs(dice.quaternion.dot(pose));
+                    if (similarity > best) {
+                        nearest = pose;
+                        best = similarity;
                     }
-
-                    dice.position.x += velocity.x * dt;
-                    dice.position.y += velocity.y * dt;
-                    applyRotation(angularVelocity.x * dt, angularVelocity.y * dt, angularVelocity.z * dt);
-                    clampPosition(true);
-
-                    velocity.multiplyScalar(Math.exp(-1.95 * dt));
-                    angularVelocity.lerp(motionPreference.matches ? still : idleSpin, 1 - Math.exp(-1.65 * dt));
-                    if (velocity.lengthSq() < 64) velocity.set(0, 0);
                 }
 
-                if (revealIn !== null && !drag) {
-                    revealIn -= dt;
-                    if (revealIn <= 0) {
-                        revealIn = null;
-                        showWelcome();
+                return nearest;
+            }
+
+            function finishRoll() {
+                dice.quaternion.copy(roll.to);
+                velocity.set(0, 0);
+                clampPosition();
+                roll.phase = "hold";
+                roll.elapsed = 0;
+                if (result) result.textContent = `Você tirou ${roll.value}.`;
+            }
+
+            function advance(dt) {
+                if (!roll) return;
+                roll.elapsed += dt;
+
+                if (roll.phase === "hold") {
+                    if (roll.elapsed >= 2) {
+                        roll = null;
+                        syncControl();
+                        if (!welcomeShown) showWelcome();
                     }
+                    return;
+                }
+
+                if (roll.phase === "settle") {
+                    const portion = Math.min(1, roll.elapsed / 0.46);
+                    dice.quaternion.slerpQuaternions(roll.from, roll.to, 1 - (1 - portion) ** 3);
+                    move(dt, 7.5);
+                    if (portion === 1) finishRoll();
+                    return;
+                }
+
+                const steps = Math.max(1, Math.ceil(dt * 120));
+                const step = dt / steps;
+
+                for (let index = 0; index < steps; index += 1) {
+                    rotate(angularVelocity.x * step, angularVelocity.y * step, angularVelocity.z * step);
+                    move(step, 2.15);
+                    angularVelocity.multiplyScalar(Math.exp(-1.23 * step));
+                }
+
+                if (roll.elapsed >= roll.spinFor) {
+                    roll.phase = "settle";
+                    roll.elapsed = 0;
+                    roll.from = dice.quaternion.clone();
+                    roll.to = landingFor(roll.value);
                 }
             }
 
             function canRender() {
-                return contextReady && width > 0 && height > 0
+                return contextReady && width > 0 && height > 0 && !document.hidden
                     && arena.isConnected && canvas.isConnected && !welcome?.open;
+            }
+
+            function syncControl() {
+                canvas.setAttribute("aria-disabled", String(!contextReady || !motionReady || Boolean(roll)));
             }
 
             function queueFrame() {
@@ -513,30 +718,26 @@
                 const dt = lastTime === null ? 0 : Math.min((now - lastTime) / 1000, 0.05);
                 lastTime = now;
 
-                if (motionReady) {
-                    try {
-                        advance(dt);
-                    } catch {
-                        motionReady = false;
-                        stopDrag();
-                        velocity.set(0, 0);
-                        angularVelocity.set(0, 0, 0);
-                        dice.position.set(0, 0, 0);
-                    }
+                try {
+                    advance(dt);
+                } catch {
+                    motionReady = false;
+                    roll = null;
+                    stopDrag();
+                    dice.position.set(0, 0, 0);
+                    syncControl();
                 }
 
                 try {
                     renderer.render(scene, camera);
                 } catch {
                     contextReady = false;
+                    syncControl();
                     setSceneStatus("O dado 3D está indisponível.");
                 }
 
-                if (motionReady && (!motionPreference.matches || revealIn !== null)) {
-                    queueFrame();
-                } else {
-                    lastTime = null;
-                }
+                if (roll) queueFrame();
+                else lastTime = null;
             }
 
             function resize() {
@@ -544,19 +745,18 @@
                 const nextWidth = arena.clientWidth;
                 const nextHeight = arena.clientHeight;
                 if (nextWidth < 1 || nextHeight < 1) return;
-                const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.75, Math.sqrt(1800000 / (nextWidth * nextHeight)));
 
-                if (width === nextWidth && height === nextHeight && pixelRatio === renderer.getPixelRatio()) {
+                const ratio = Math.min(window.devicePixelRatio || 1, 1.75, Math.sqrt(1800000 / (nextWidth * nextHeight)));
+                if (width === nextWidth && height === nextHeight && ratio === renderer.getPixelRatio()) {
                     queueFrame();
                     return;
                 }
 
                 stopDrag();
-                if (width > 0) dice.position.x *= nextWidth / width;
-                if (height > 0) dice.position.y *= nextHeight / height;
+                if (width) dice.position.x *= nextWidth / width;
+                if (height) dice.position.y *= nextHeight / height;
                 width = nextWidth;
                 height = nextHeight;
-
                 camera.left = -width / 2;
                 camera.right = width / 2;
                 camera.top = height / 2;
@@ -565,7 +765,7 @@
                 dice.scale.setScalar(Math.min(88, width * 0.17, height * 0.235));
                 clampPosition();
 
-                renderer.setDrawingBufferSize(width, height, pixelRatio);
+                if (contextReady) renderer.setDrawingBufferSize(width, height, ratio);
                 queueFrame();
             }
 
@@ -574,126 +774,158 @@
                 const { id } = drag;
                 drag = null;
                 canvas.classList.remove("dragging");
-
-                if (canvas.isConnected && canvas.hasPointerCapture(id)) {
-                    canvas.releasePointerCapture(id);
-                }
+                if (canvas.isConnected && canvas.hasPointerCapture(id)) canvas.releasePointerCapture(id);
             }
 
-            function launch(fromDrag = false) {
-                if (!canRender() || !motionReady || drag) return;
+            function canThrow() {
+                return canRender() && motionReady && !roll && !drag;
+            }
 
-                if (motionPreference.matches) {
-                    velocity.set(0, 0);
-                    applyRotation(0.47, 0.78, 0.23);
-                    clampPosition();
-                    if (!welcomeShown) showWelcome();
+            function hitDice(event) {
+                pointer.set(event.offsetX / width * 2 - 1, 1 - event.offsetY / height * 2);
+                raycaster.setFromCamera(pointer, camera);
+                dice.updateMatrixWorld(true);
+                hits.length = 0;
+                return raycaster.intersectObject(body, false, hits).length > 0;
+            }
+
+            function aimThrow(gesture, releaseTime, size) {
+                const samples = gesture.samples;
+                const first = samples[0];
+                const last = samples[samples.length - 1];
+                const elapsed = Math.max(16, last.time - first.time);
+                const pause = Math.max(0, releaseTime - last.time - 40);
+                velocity.set(last.x - first.x, first.y - last.y);
+                if (velocity.lengthSq() < 16) velocity.set(gesture.dx, gesture.dy);
+                const speed = velocity.length() * 1700 / elapsed * Math.exp(-pause / 140);
+                const minimum = clamp(size * 2.2, 550, 1090);
+                const maximum = clamp(size * 5.2, 1150, 2350);
+                velocity.normalize().multiplyScalar(clamp(speed, minimum, maximum));
+            }
+
+            function launch(gesture = null, releaseTime = 0) {
+                if (!canThrow()) return;
+                const value = 1 + Math.floor(Math.random() * 6);
+                const size = Math.min(width, height);
+                roll = { phase: "tumble", value, elapsed: 0, spinFor: gesture ? 1.18 : 1.03 };
+                if (result) result.textContent = "";
+                canvas.classList.remove("grabbable");
+                syncControl();
+
+                if (reducedMotion.matches) {
+                    roll.to = landingFor(value);
+                    finishRoll();
                 } else {
-                    if (!fromDrag) {
+                    if (gesture) {
+                        aimThrow(gesture, releaseTime, size);
+                    } else {
                         const direction = Math.random() * Math.PI * 2;
-                        const speed = Math.min(940, Math.max(410, Math.min(width, height) * 1.85));
+                        const speed = clamp(size * 1.65, 360, 840);
                         velocity.set(Math.cos(direction) * speed, Math.sin(direction) * speed);
                     }
 
+                    const speed = velocity.length();
+                    const strength = speed / Math.max(size, 180);
+                    const spin = gesture ? Math.min(27, 13 + strength * 2.5) : 11 + strength * 1.15;
                     angularVelocity.set(
-                        3.4 + velocity.y * 0.005,
-                        4.9 + velocity.x * 0.005,
-                        2.15 + (velocity.x - velocity.y) * 0.0015
+                        2.3 - velocity.y / speed * spin,
+                        1.8 + velocity.x / speed * spin,
+                        3.7
                     );
-                    if (!welcomeShown && revealIn === null) revealIn = 1.65;
                 }
 
+                queueFrame();
+            }
+
+            function moveDrag(event) {
+                const { clientX: x, clientY: y, timeStamp: time } = event;
+                if (!drag.moved && Math.hypot(x - drag.startX, y - drag.startY) < 5) return;
+
+                const dx = x - drag.lastX;
+                const dy = drag.lastY - y;
+                if (dx === 0 && dy === 0) return;
+
+                drag.moved = true;
+                drag.dx = dx;
+                drag.dy = dy;
+                drag.lastX = x;
+                drag.lastY = y;
+                drag.samples.push({ x, y, time });
+                while (drag.samples.length > 2 && time - drag.samples[1].time > 110) drag.samples.shift();
+
+                dice.position.x += dx;
+                dice.position.y += dy;
+                if (!reducedMotion.matches) {
+                    rotate(clamp(-dy * 0.011, -0.72, 0.72), clamp(dx * 0.011, -0.72, 0.72), 0);
+                }
+                clampPosition();
                 queueFrame();
             }
 
             canvas.addEventListener("pointerdown", event => {
-                if (!canRender() || !motionReady || drag || !event.isPrimary || event.button !== 0) return;
+                if (!canThrow() || !event.isPrimary || event.button !== 0 || !hitDice(event)) return;
 
-                pointer.set(event.offsetX / width * 2 - 1, 1 - event.offsetY / height * 2);
-                raycaster.setFromCamera(pointer, camera);
-                dice.updateMatrixWorld(true);
-                hit.length = 0;
-                if (!raycaster.intersectObject(body, false, hit).length) return;
-
+                const { clientX: x, clientY: y } = event;
                 drag = {
-                    id: event.pointerId,
-                    startX: event.clientX,
-                    startY: event.clientY,
-                    lastX: event.clientX,
-                    lastY: event.clientY,
-                    lastTime: event.timeStamp,
-                    moved: false
+                    id: event.pointerId, startX: x, startY: y, lastX: x, lastY: y,
+                    moved: false, dx: 0, dy: 0,
+                    samples: [{ x, y, time: event.timeStamp }]
                 };
-                velocity.set(0, 0);
-                dragVelocity.set(0, 0);
                 canvas.classList.add("dragging");
+
                 try {
                     canvas.setPointerCapture(event.pointerId);
                 } catch {
-                    // Os eventos registrados na janela também encerram o arrasto.
+                    // Os eventos na janela também encerram o arrasto.
                 }
             });
 
+            canvas.addEventListener("pointermove", event => {
+                if (!drag && event.pointerType === "mouse") {
+                    canvas.classList.toggle("grabbable", canThrow() && hitDice(event));
+                }
+            });
+
+            canvas.addEventListener("pointerleave", () => canvas.classList.remove("grabbable"));
             window.addEventListener("pointermove", event => {
-                if (!drag || event.pointerId !== drag.id) return;
-                const { clientX: x, clientY: y, timeStamp } = event;
-
-                if (!drag.moved && Math.hypot(x - drag.startX, y - drag.startY) < 5) return;
-                drag.moved = true;
-
-                const dx = x - drag.lastX;
-                const dy = drag.lastY - y;
-                const elapsed = Math.max(8, timeStamp - drag.lastTime) / 1000;
-                const maxSpeed = Math.min(1500, Math.max(550, Math.min(width, height) * 3.4));
-                dragVelocity.set(dx / elapsed, dy / elapsed).clampLength(0, maxSpeed);
-
-                dice.position.x += dx;
-                dice.position.y += dy;
-                applyRotation(
-                    THREE.MathUtils.clamp(-dy * 0.008, -0.65, 0.65),
-                    THREE.MathUtils.clamp(dx * 0.008, -0.65, 0.65),
-                    0
-                );
-                clampPosition();
-
-                drag.lastX = x;
-                drag.lastY = y;
-                drag.lastTime = timeStamp;
-                queueFrame();
+                if (drag?.id === event.pointerId) moveDrag(event);
             });
 
             window.addEventListener("pointerup", event => {
-                if (!drag || event.pointerId !== drag.id) return;
-                const { moved, lastTime: lastMoveTime } = drag;
+                if (drag?.id !== event.pointerId) return;
+                moveDrag(event);
+                const gesture = drag.moved ? drag : null;
                 stopDrag();
-                if (moved) {
-                    const pause = Math.max(0, event.timeStamp - lastMoveTime - 45);
-                    velocity.copy(dragVelocity).multiplyScalar(Math.exp(-pause / 85));
-                }
-                launch(moved);
+                launch(gesture, event.timeStamp);
             });
 
             function cancelPointer(event) {
-                if (drag && event.pointerId === drag.id) stopDrag();
+                if (drag?.id === event.pointerId) stopDrag();
             }
+
+            canvas.addEventListener("keydown", event => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                event.preventDefault();
+                if (!event.repeat) launch();
+            });
+
+            canvas.addEventListener("click", event => {
+                if (event.detail === 0 && !event.pointerType) launch();
+            });
 
             window.addEventListener("pointercancel", cancelPointer);
             canvas.addEventListener("lostpointercapture", cancelPointer);
             window.addEventListener("blur", stopDrag);
             window.addEventListener("resize", resize);
             if (typeof ResizeObserver === "function") new ResizeObserver(resize).observe(arena);
-            motionPreference.addEventListener("change", queueFrame);
+
             document.addEventListener("visibilitychange", () => {
                 lastTime = null;
                 if (document.hidden) stopDrag();
                 else queueFrame();
             });
 
-            skipButton?.addEventListener("click", () => {
-                stopDrag();
-                revealIn = null;
-            });
-
+            skip?.addEventListener("click", stopDrag);
             welcome?.addEventListener("close", () => {
                 lastTime = null;
                 queueFrame();
@@ -706,25 +938,25 @@
                 frame = null;
                 lastTime = null;
                 stopDrag();
+                syncControl();
                 setSceneStatus("Recuperando a cena 3D…");
             });
 
             canvas.addEventListener("webglcontextrestored", () => {
                 contextReady = true;
+                width = 0;
+                height = 0;
+                syncControl();
                 setSceneStatus();
                 resize();
             });
 
-            rollDice = launch;
             resize();
-            if (contextReady) {
-                setSceneStatus();
-            } else {
-                setSceneStatus("Recuperando a cena 3D…");
-            }
+            syncControl();
+            setSceneStatus(contextReady ? "" : "Recuperando a cena 3D…");
         }
 
-        function makePips(THREE, depth) {
+        function makeFaces(THREE, pipOffset) {
             const gap = 0.43;
             const topLeft = [-gap, gap];
             const topRight = [gap, gap];
@@ -745,21 +977,29 @@
 
             const pipRadius = 0.118;
             const pips = new THREE.InstancedMesh(
-                new THREE.SphereGeometry(pipRadius, 14, 10),
+                new THREE.CircleGeometry(pipRadius, 24),
                 new THREE.MeshStandardMaterial({ color: 0xf3f8ff, roughness: 0.32 }),
                 21
             );
-
             const stamp = new THREE.Object3D();
             const front = new THREE.Vector3(0, 0, 1);
             const normal = new THREE.Vector3();
-            stamp.scale.z = depth / pipRadius;
+            const landings = [];
             let index = 0;
 
             for (const [face, layout] of layouts.entries()) {
                 stamp.quaternion.setFromUnitVectors(front, normal.set(...normals[face]));
+                const faceFront = stamp.quaternion.clone().invert();
+                const poses = [];
+
+                for (let turn = 0; turn < 4; turn += 1) {
+                    const pose = new THREE.Quaternion().setFromAxisAngle(front, turn * Math.PI / 2);
+                    poses.push(pose.multiply(faceFront));
+                }
+
+                landings.push(poses);
                 for (const [x, y] of layout) {
-                    stamp.position.set(x, y, 0.998).applyQuaternion(stamp.quaternion);
+                    stamp.position.set(x, y, 1 + pipOffset).applyQuaternion(stamp.quaternion);
                     stamp.updateMatrix();
                     pips.setMatrixAt(index, stamp.matrix);
                     index += 1;
@@ -768,11 +1008,12 @@
 
             pips.instanceMatrix.needsUpdate = true;
             pips.computeBoundingSphere();
-            return pips;
+            return { pips, landings };
         }
 
         setSceneStatus("Carregando o dado 3D…");
         void startScene();
+        startPattern();
     </script>
 </body>
 </html>
