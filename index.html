@@ -75,7 +75,7 @@
         .experience {
             position: relative;
             display: grid;
-            grid-template-rows: auto minmax(120px, 1fr) auto;
+            grid-template-rows: auto minmax(126px, 1fr) auto;
             height: 100vh;
             height: 100dvh;
             min-height: 315px;
@@ -84,20 +84,28 @@
 
         .hero {
             grid-row: 1;
+            display: grid;
+            justify-items: center;
             min-width: 0;
-            padding: clamp(14px, 4vh, 36px) 18px 9px;
+            row-gap: clamp(17px, 3vh, 28px);
+            padding: clamp(18px, 4vh, 36px) 18px clamp(8px, 1.5vh, 14px);
         }
 
         .brand-logo {
             display: block;
-            width: clamp(150px, 24vw, 258px);
+            width: clamp(154px, 23vw, 248px);
             height: auto;
-            margin: 0 auto clamp(12px, 2.3vh, 20px);
+        }
+
+        .hero-content {
+            display: grid;
+            justify-items: center;
+            row-gap: clamp(11px, 1.8vh, 17px);
+            width: min(100%, 1020px);
         }
 
         .hero h1 {
-            max-width: 1020px;
-            margin: 0 auto;
+            margin: 0;
             color: var(--red);
             font-size: clamp(1.3rem, 4.35vw, 2.8rem);
             font-weight: 900;
@@ -107,8 +115,8 @@
         }
 
         .hero-copy {
-            max-width: 730px;
-            margin: 10px auto 0;
+            max-width: min(100%, 900px);
+            margin: 0;
             color: #5a331c;
             font-size: clamp(0.88rem, 2vw, 1.05rem);
             line-height: 1.45;
@@ -116,7 +124,7 @@
         }
 
         .hero-invitation {
-            margin: 8px 0 0;
+            margin: 0;
             color: #792a16;
             font-size: clamp(0.85rem, 2vw, 1.02rem);
             line-height: 1.35;
@@ -152,7 +160,7 @@
 
         .controls {
             grid-row: 3;
-            padding: 8px 16px max(clamp(22px, 5vh, 46px), env(safe-area-inset-bottom));
+            padding: 8px 16px max(clamp(22px, 7.4vh, 66px), env(safe-area-inset-bottom));
         }
 
         .hint {
@@ -246,53 +254,34 @@
         }
 
         @media (max-height: 650px) {
-            .hero { padding-top: 13px; }
-            .brand-logo { width: clamp(135px, 24vw, 210px); margin-bottom: 10px; }
-            .hero-copy { margin-top: 7px; }
-            .hero-invitation { margin-top: 6px; }
+            .hero { padding-top: 16px; row-gap: 15px; }
+            .brand-logo { width: clamp(136px, 23vw, 218px); }
+            .hero-content { row-gap: 10px; }
         }
 
-        @media (max-height: 520px) and (max-width: 619px) {
-            .hero {
-                display: grid;
-                grid-template-columns: minmax(100px, 122px) 1fr;
-                align-items: center;
-                gap: 6px 10px;
-                padding: 10px 14px 7px;
-            }
-
-            .hero > div { display: contents; }
-            .brand-logo { width: 100%; margin: 0; }
-            .hero h1 { font-size: clamp(1rem, 5vw, 1.6rem); }
-
-            .hero-copy,
-            .hero-invitation {
-                grid-column: 1 / -1;
-                margin: 0;
-            }
-
-            .hero-copy { font-size: 0.8rem; line-height: 1.35; }
-            .hero-invitation { font-size: 0.78rem; letter-spacing: -0.02em; }
-            .controls { padding-bottom: max(13px, env(safe-area-inset-bottom)); }
+        @media (min-width: 760px) and (max-height: 710px) {
+            .hero { padding-top: 18px; row-gap: 17px; }
+            .brand-logo { width: 218px; }
+            .hero-content { row-gap: 12px; }
+            .hero h1 { font-size: clamp(1.75rem, 3.7vw, 2.55rem); }
+            .hero-copy { font-size: 0.97rem; }
         }
 
-        @media (max-height: 520px) and (min-width: 620px) {
-            .hero {
-                display: grid;
-                grid-template-columns: minmax(104px, 153px) 1fr;
-                align-items: center;
-                gap: clamp(14px, 3vw, 34px);
-                width: min(100%, 1000px);
-                margin: 0 auto;
-                padding: 12px 24px 9px;
-                text-align: left;
-            }
-
-            .brand-logo { width: 100%; margin: 0; }
-            .hero h1 { font-size: clamp(1rem, 3.3vw, 1.68rem); text-wrap: wrap; }
+        @media (max-height: 520px) {
+            .hero { row-gap: 9px; padding: 12px 16px 8px; }
+            .brand-logo { width: clamp(112px, 19vw, 152px); }
+            .hero-content { row-gap: 7px; }
+            .hero h1 { font-size: clamp(1.05rem, 3.2vw, 1.54rem); }
             .hero-copy { font-size: 0.84rem; line-height: 1.35; }
             .hero-invitation { font-size: 0.8rem; }
             .controls { padding-bottom: max(13px, env(safe-area-inset-bottom)); }
+        }
+
+        @media (max-width: 499px) and (max-height: 520px) {
+            .hero { padding: 10px 13px 7px; }
+            .hero h1 { font-size: clamp(1.05rem, 5vw, 1.4rem); }
+            .hero-copy { font-size: 0.8rem; }
+            .hero-invitation { font-size: 0.78rem; letter-spacing: -0.018em; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -318,7 +307,7 @@
         <header class="hero">
             <canvas class="brand-logo" id="brand-logo" width="1278" height="422"
                 role="img" aria-label="Passa o Dado">Passa o Dado</canvas>
-            <div>
+            <div class="hero-content">
                 <h1>SUA PRÓXIMA DIVERSÃO COMEÇA AQUI!</h1>
                 <p class="hero-copy">Alugue jogos de tabuleiro, reúna quem você gosta e transforme qualquer encontro em uma experiência inesquecível.</p>
                 <p class="hero-invitation"><strong>Gire o dado e descubra nosso universo de jogos!</strong></p>
@@ -561,22 +550,57 @@
             }
         }
 
+        function makeLightSprite(THREE, stops) {
+            const surface = document.createElement("canvas");
+            surface.width = 128;
+            surface.height = 128;
+            const paint = surface.getContext("2d");
+            if (!paint) return null;
+
+            const gradient = paint.createRadialGradient(64, 64, 0, 64, 64, 64);
+            for (const [offset, color] of stops) gradient.addColorStop(offset, color);
+            paint.fillStyle = gradient;
+            paint.fillRect(0, 0, 128, 128);
+
+            const texture = new THREE.CanvasTexture(surface);
+            texture.colorSpace = THREE.SRGBColorSpace;
+            return new THREE.Sprite(new THREE.SpriteMaterial({
+                map: texture, transparent: true, depthWrite: false, toneMapped: false
+            }));
+        }
+
         function createScene(THREE, RoundedBoxGeometry, context) {
             const renderer = new THREE.WebGLRenderer({ canvas, context, alpha: true, antialias: true });
             renderer.outputColorSpace = THREE.SRGBColorSpace;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.12;
+            renderer.toneMappingExposure = 1.10;
 
             const scene = new THREE.Scene();
             const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 1000);
             camera.position.z = 500;
             camera.updateMatrixWorld();
 
-            const key = new THREE.DirectionalLight(0xffefdb, 3.1);
+            const key = new THREE.DirectionalLight(0xffefdb, 3.05);
             key.position.set(-3, 5, 7);
-            const rim = new THREE.DirectionalLight(0xffbd59, 1.55);
-            rim.position.set(4, 1, -4);
-            scene.add(key, rim, new THREE.HemisphereLight(0xfff7df, 0xb25029, 1.65));
+            const rim = new THREE.DirectionalLight(0xffc575, 1.8);
+            rim.position.set(4, 2, -3);
+            const fill = new THREE.DirectionalLight(0xfff3e0, 0.65);
+            fill.position.set(3, -3, 7);
+            scene.add(key, rim, fill, new THREE.HemisphereLight(0xfff7df, 0xa74f28, 1.7));
+
+            const halo = makeLightSprite(THREE, [
+                [0, "rgba(255, 165, 44, 0.47)"],
+                [0.44, "rgba(255, 185, 65, 0.30)"],
+                [0.76, "rgba(255, 205, 103, 0.12)"],
+                [1, "rgba(255, 219, 141, 0)"]
+            ]);
+            const shadow = makeLightSprite(THREE, [
+                [0, "rgba(88, 35, 20, 0.27)"],
+                [0.55, "rgba(88, 35, 20, 0.14)"],
+                [1, "rgba(88, 35, 20, 0)"]
+            ]);
+            if (halo) scene.add(halo);
+            if (shadow) scene.add(shadow);
 
             const cornerRadius = 0.22;
             const pipOffset = 0.0025;
@@ -585,14 +609,14 @@
             const body = new THREE.Mesh(
                 new RoundedBoxGeometry(2, 2, 2, 4, cornerRadius),
                 new THREE.MeshPhysicalMaterial({
-                    color: 0xbf0b2c, metalness: 0.13, roughness: 0.29,
-                    clearcoat: 1, clearcoatRoughness: 0.21
+                    color: 0xbf0b2c, metalness: 0.10, roughness: 0.24,
+                    clearcoat: 1, clearcoatRoughness: 0.16
                 })
             );
 
             const { pips, landings } = makeFaces(THREE, pipOffset);
             const dice = new THREE.Group();
-            dice.rotation.set(0.37, -0.58, -0.19);
+            dice.rotation.set(0.32, -0.56, -0.14);
             dice.add(body, pips);
             scene.add(dice);
 
@@ -606,6 +630,9 @@
             const pointer = new THREE.Vector2();
             const hits = [];
             const clamp = THREE.MathUtils.clamp;
+            const restingHalfHeight = projectedHalfExtent(
+                rotationMatrix.makeRotationFromQuaternion(dice.quaternion).elements, 1
+            );
 
             let width = 0;
             let height = 0;
@@ -614,9 +641,15 @@
             let lastTime = null;
             let press = null;
             let roll = null;
+            let reflectedLight = 0;
             let contextReady = !context.isContextLost();
             let motionReady = true;
             let projectBounds = true;
+
+            function projectedHalfExtent(matrix, row) {
+                const axes = Math.abs(matrix[row]) + Math.abs(matrix[row + 4]) + Math.abs(matrix[row + 8]);
+                return cornerCore * axes + cornerRadius + pipOffset;
+            }
 
             function clampPosition(bounce = false) {
                 let halfWidth = enclosingRadius;
@@ -625,8 +658,8 @@
                 if (projectBounds) {
                     try {
                         const m = rotationMatrix.makeRotationFromQuaternion(dice.quaternion).elements;
-                        halfWidth = cornerCore * (Math.abs(m[0]) + Math.abs(m[4]) + Math.abs(m[8])) + cornerRadius + pipOffset;
-                        halfHeight = cornerCore * (Math.abs(m[1]) + Math.abs(m[5]) + Math.abs(m[9])) + cornerRadius + pipOffset;
+                        halfWidth = projectedHalfExtent(m, 0);
+                        halfHeight = projectedHalfExtent(m, 1);
                     } catch {
                         projectBounds = false;
                     }
@@ -747,6 +780,7 @@
 
                     const impacts = clampPosition(true);
                     roll.impacts += impacts;
+                    if (impacts) reflectedLight = Math.min(1, reflectedLight + impacts * 0.48);
                     velocity.multiplyScalar(Math.exp(-0.30 * step));
                     spin.multiplyScalar(Math.exp(-0.87 * step));
 
@@ -772,6 +806,24 @@
                 if (frame === null && canRender()) frame = requestAnimationFrame(animate);
             }
 
+            function updateLighting(dt) {
+                reflectedLight *= Math.exp(-5.4 * dt);
+                rim.intensity = 1.8 + 0.68 * reflectedLight;
+                const { x, y } = dice.position;
+                const size = dice.scale.x;
+
+                if (halo) {
+                    halo.position.set(x - size * 0.10, y + size * 0.08, -260);
+                    halo.scale.set(size * 4.35, size * 3.18, 1);
+                    halo.material.opacity = 0.84 + 0.16 * reflectedLight;
+                }
+
+                if (shadow) {
+                    shadow.position.set(x + size * 0.15, y - size * 1.12, -250);
+                    shadow.scale.set(size * 3.45, size * 0.92, 1);
+                }
+            }
+
             function animate(now) {
                 frame = null;
                 if (!canRender()) {
@@ -792,6 +844,7 @@
                 }
 
                 try {
+                    updateLighting(dt);
                     renderer.render(scene, camera);
                 } catch {
                     contextReady = false;
@@ -809,8 +862,10 @@
                 const nextHeight = arena.clientHeight;
                 if (nextWidth < 1 || nextHeight < 1) return;
 
+                const size = Math.min(118, nextWidth * 0.236, nextHeight * 0.292);
                 const midScreen = Math.min(window.innerHeight, experience.clientHeight) / 2;
-                const minimumSpace = Math.min(28, nextHeight / 2);
+                // Conserva a folga do dado junto aos textos em janelas mais baixas.
+                const minimumSpace = Math.min(nextHeight / 2, size * restingHalfHeight + 12);
                 const centerInArena = clamp(midScreen - arena.offsetTop, minimumSpace, nextHeight - minimumSpace);
                 const nextHomeY = nextHeight / 2 - centerInArena;
                 const ratio = Math.min(window.devicePixelRatio || 1, 1.75, Math.sqrt(1800000 / (nextWidth * nextHeight)));
@@ -839,8 +894,7 @@
                 camera.bottom = -height / 2;
                 camera.updateProjectionMatrix();
 
-                const roomAtCenter = Math.min(centerInArena, height - centerInArena);
-                dice.scale.setScalar(Math.min(90, width * 0.18, height * 0.25, (roomAtCenter - 5) / enclosingRadius));
+                dice.scale.setScalar(size);
                 if (!roll || roll.phase === "hold") dice.position.set(0, homeY, 0);
                 clampPosition();
 
@@ -866,13 +920,15 @@
                     roll.toPose = landingFor(roll.value);
                     finishRoll();
                 } else {
+                    reflectedLight = 0.26;
                     const directionX = Math.random() < 0.5 ? -1 : 1;
                     const directionY = Math.random() < 0.5 ? -1 : 1;
-                    const clearance = 2 * (dice.scale.x * enclosingRadius + 4);
+                    const clearanceX = 2 * (dice.scale.x * enclosingRadius + 4);
+                    const clearanceY = 2 * (dice.scale.x * restingHalfHeight + 4);
                     const pace = 1.12 + Math.random() * 0.14;
                     velocity.set(
-                        directionX * Math.max(width - clearance, width * 0.14) * pace,
-                        directionY * Math.max(height - clearance, height * 0.14) * (pace - 0.12),
+                        directionX * Math.max(width - clearanceX, width * 0.16) * pace,
+                        directionY * Math.max(height - clearanceY, height * 0.19) * (pace - 0.08),
                         0
                     );
                     spin.set(-directionY * 12.4, directionX * 14.2, 4.4);
