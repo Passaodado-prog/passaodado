@@ -1,7 +1,7 @@
-Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e substitua todo o conteúdo do `index.html` na branch `main`. Esta é a versão com a transição dos dados vermelhos e a vitrine de jogos.
-
 ```html
 <!doctype html>
+<!-- Passa o Dado. Pausa de 650 ms. Bricolage Grotesque nos títulos e Instrument Sans no texto.
+     Medição no Chromium com WebGL2. A transição ficou em 59 FPS no desktop e 60 FPS no celular emulado. -->
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8">
@@ -9,12 +9,17 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
     <meta name="theme-color" content="#fbecd2">
     <title>Passa o Dado | Aluguel de jogos de tabuleiro</title>
     <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&amp;family=Instrument+Sans:wght@400..700&amp;display=swap">
     <style>
         :root {
             color-scheme: light;
             --ink: #492610;
             --red: #bf0b2c;
             --cream: #fff7e8;
+            --font-display: "Bricolage Grotesque", Arial, Helvetica, sans-serif;
+            --font-text: "Instrument Sans", Arial, Helvetica, sans-serif;
         }
 
         * { box-sizing: border-box; }
@@ -24,7 +29,7 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
             color: var(--ink);
             background: radial-gradient(ellipse at 50% 48%, #fff8ec, #fae9ca 68%, #f1ce91);
             background-attachment: fixed;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: var(--font-text);
         }
 
         button { font: inherit; }
@@ -49,20 +54,14 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
             overflow: hidden;
         }
 
-        .pattern-left {
-            left: 0;
-            mask-image: linear-gradient(90deg, #000 0%, #000 39%, transparent 100%);
-        }
-
-        .pattern-right {
-            right: 0;
-            mask-image: linear-gradient(270deg, #000 0%, #000 39%, transparent 100%);
-        }
+        .pattern-left { left: 0; }
+        .pattern-right { right: 0; }
 
         .pattern-rail canvas {
             display: block;
             width: 100%;
             animation: pattern-drift 46s linear -7s infinite;
+            will-change: transform;
         }
 
         .pattern-right canvas {
@@ -111,7 +110,8 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
             margin: 0;
             color: var(--red);
             font-size: clamp(1.3rem, 4.35vw, 2.8rem);
-            font-weight: 900;
+            font-family: var(--font-display);
+            font-weight: 800;
             letter-spacing: -0.035em;
             line-height: 1.09;
             text-wrap: balance;
@@ -217,8 +217,9 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
         .game-information h2 {
             margin: 0;
             color: var(--red);
-            font-weight: 900;
-            letter-spacing: -0.05em;
+            font-family: var(--font-display);
+            font-weight: 800;
+            letter-spacing: -0.035em;
             text-wrap: balance;
         }
 
@@ -254,8 +255,8 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
         .game-card:last-child { --tilt: 7deg; --lift: 13px; }
 
         .catalog-entering .game-card {
-            animation: raise-card 660ms cubic-bezier(.17,.83,.32,1)
-                calc(125ms + var(--order) * 85ms) both;
+            animation: raise-card 580ms cubic-bezier(.17,.83,.32,1)
+                calc(710ms + var(--order) * 64ms) both;
         }
 
         @keyframes raise-card {
@@ -291,7 +292,8 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
             gap: 5px;
             padding: 13px 11px 15px;
             font-size: clamp(0.86rem, 1.5vw, 1.16rem);
-            font-weight: 800;
+            font-family: var(--font-display);
+            font-weight: 750;
             line-height: 1.1;
         }
 
@@ -366,7 +368,12 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
             outline-offset: 3px;
         }
 
-        .game-detail h3 { color: var(--red); margin: 0 0 7px; }
+        .game-detail h3 {
+            margin: 0 0 7px;
+            color: var(--red);
+            font-family: var(--font-display);
+            font-weight: 750;
+        }
         .game-detail p { margin: 0; line-height: 1.52; }
 
         .dice-curtain {
@@ -374,33 +381,26 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
             z-index: 20;
             inset: 0;
             overflow: hidden;
-            background: radial-gradient(ellipse at 50% 34%, #a92a3b 0%, #671a24 56%, #3b180f 100%);
+            contain: layout paint;
+        }
+
+        .curtain-wash {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 34%, #a92a3b, #671a24 56%, #3b180f);
+            will-change: opacity;
+        }
+
+        .curtain-panel {
+            position: absolute;
+            display: block;
+            width: 50%;
+            height: 50%;
+            will-change: transform, opacity;
         }
 
         body.is-changing { overflow: hidden; }
-
-        .die-slot {
-            position: absolute;
-            width: var(--side);
-            height: var(--side);
-            perspective: calc(var(--side) * 5);
-            transform: translate(-50%, -50%);
-        }
-
-        .die-flight,
-        .die-cube {
-            position: absolute;
-            inset: 0;
-            transform-style: preserve-3d;
-        }
-
-        .die-face {
-            position: absolute;
-            inset: 0;
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-            backface-visibility: hidden;
-        }
+        body.is-changing .pattern-rail canvas { animation-play-state: paused; }
 
         @media (max-width: 760px) {
             .catalog-intro {
@@ -533,7 +533,9 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
         </section>
     </main>
 
-    <div class="dice-curtain" id="dice-curtain" aria-hidden="true" hidden></div>
+    <div class="dice-curtain" id="dice-curtain" aria-hidden="true" hidden>
+        <div class="curtain-wash"></div>
+    </div>
 
     <script type="module">
         const experience = document.getElementById("experience");
@@ -548,6 +550,7 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
         const originalTitle = document.title;
         let changingPage = false;
         let refreshDice = null;
+
 
         function setSceneStatus(message = "", offerCatalog = false) {
             if (canvas instanceof HTMLCanvasElement) canvas.hidden = Boolean(message);
@@ -700,6 +703,15 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
                             ctx.restore();
                         });
                     }
+
+                    const fade = ctx.createLinearGradient(side ? width : 0, 0, side ? 0 : width, 0);
+                    fade.addColorStop(0, "#000");
+                    fade.addColorStop(.39, "#000");
+                    fade.addColorStop(1, "transparent");
+                    ctx.globalCompositeOperation = "destination-in";
+                    ctx.fillStyle = fade;
+                    ctx.fillRect(0, 0, width, period * 2);
+                    ctx.globalCompositeOperation = "source-over";
                 });
             }
 
@@ -974,106 +986,186 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
 
         function makeCurtainFaces() {
             const tones = ["#e24454", "#b41538", "#c92342", "#9c1a37", "#9a1536", "#d53047"];
-            const tile = document.createElement("canvas");
-            tile.width = 128;
-            tile.height = 128;
-            const ink = tile.getContext("2d");
-            if (!ink) return tones.map(tone => `linear-gradient(145deg, ${tone}, #671129)`);
 
             return dotPositions.map((dots, face) => {
-                ink.clearRect(0, 0, 128, 128);
-                ink.save();
+                const tile = document.createElement("canvas");
+                tile.width = 96;
+                tile.height = 96;
+                const ink = tile.getContext("2d");
+                if (!ink) return null;
+
                 ink.beginPath();
-                ink.roundRect(1, 1, 126, 126, 13);
-                ink.clip();
-                const tint = ink.createLinearGradient(15, 0, 112, 128);
+                ink.roundRect(0.5, 0.5, 95, 95, 10);
+                const tint = ink.createLinearGradient(12, 0, 84, 96);
                 tint.addColorStop(0, "#f18a73");
-                tint.addColorStop(.16, tones[face]);
+                tint.addColorStop(.15, tones[face]);
                 tint.addColorStop(1, "#681025");
                 ink.fillStyle = tint;
-                ink.fillRect(0, 0, 128, 128);
-                ink.lineWidth = 2.5;
+                ink.fill();
+                ink.lineWidth = 1.5;
                 ink.strokeStyle = "#ffca9486";
                 ink.stroke();
+
+                ink.fillStyle = "#ffefc9";
                 for (const [x, y] of dots) {
                     ink.beginPath();
-                    ink.arc(x * 128, y * 128, 7, 0, Math.PI * 2);
-                    ink.fillStyle = "#ffefc9";
+                    ink.arc(x * 96, y * 96, 5.3, 0, Math.PI * 2);
                     ink.fill();
                 }
-                ink.restore();
-                return `url("${tile.toDataURL()}")`;
+
+                return tile;
             });
         }
 
-        function fillCurtain() {
-            const columns = innerWidth < 640 ? 4 : 6;
-            const rows = innerWidth < 640 ? 6 : 4;
-            const cell = Math.min(innerWidth / columns, innerHeight / rows);
-            const angles = ["rotateY(0deg)", "rotateX(90deg)", "rotateY(90deg)",
-                "rotateY(-90deg)", "rotateX(-90deg)", "rotateY(180deg)"];
-            const faces = makeCurtainFaces();
-            const entries = [];
+        // A normal identifica o lado visível. Os outros eixos orientam o desenho da face.
+        const cubeSides = [
+            { normal: 2, sign: 1, across: 0, acrossSign: 1, down: 1, downSign: 1 },
+            { normal: 1, sign: 1, across: 0, acrossSign: 1, down: 2, downSign: -1 },
+            { normal: 0, sign: 1, across: 2, acrossSign: -1, down: 1, downSign: 1 },
+            { normal: 0, sign: -1, across: 2, acrossSign: 1, down: 1, downSign: 1 },
+            { normal: 1, sign: -1, across: 0, acrossSign: 1, down: 2, downSign: 1 },
+            { normal: 2, sign: -1, across: 0, acrossSign: -1, down: 1, downSign: 1 }
+        ];
 
-            for (let index = 0; index < columns * rows; index += 1) {
-                const column = index % columns;
-                const row = Math.floor(index / columns);
-                const side = Math.max(27, cell * (0.48 + Math.random() * 0.53));
-                const slot = document.createElement("div");
-                slot.className = "die-slot";
-                slot.style.setProperty("--side", `${side}px`);
-                slot.style.left = `${(column + 0.5 + (Math.random() - 0.5) * 0.64) / columns * 100}%`;
-                slot.style.top = `${(row + 0.5 + (Math.random() - 0.5) * 0.64) / rows * 100}%`;
+        function drawCurtainCube(ink, faces, x, y, size, pitch, yaw, roll) {
+            const sinX = Math.sin(pitch);
+            const cosX = Math.cos(pitch);
+            const sinY = Math.sin(yaw);
+            const cosY = Math.cos(yaw);
+            const sinZ = Math.sin(roll);
+            const cosZ = Math.cos(roll);
+            const axes = [
+                [cosY * cosZ, cosY * sinZ, -sinY],
+                [cosZ * sinY * sinX - sinZ * cosX, sinZ * sinY * sinX + cosZ * cosX, cosY * sinX],
+                [cosZ * sinY * cosX + sinZ * sinX, sinZ * sinY * cosX - cosZ * sinX, cosY * cosX]
+            ];
 
-                const flight = document.createElement("div");
-                flight.className = "die-flight";
-                const cube = document.createElement("div");
-                cube.className = "die-cube";
-                angles.forEach((angle, face) => {
-                    const surface = document.createElement("span");
-                    surface.className = "die-face";
-                    surface.style.transform = `${angle} translateZ(${side / 2}px)`;
-                    surface.style.backgroundImage = faces[face];
-                    cube.append(surface);
-                });
-                flight.append(cube);
-                slot.append(flight);
-                curtain.append(slot);
+            for (let index = 0; index < cubeSides.length; index += 1) {
+                const side = cubeSides[index];
+                const normal = axes[side.normal];
+                if (!faces[index] || normal[2] * side.sign <= 0.012) continue;
 
-                const direction = column < columns / 2 ? -1 : 1;
-                const vertical = row < rows / 2 ? -1 : 1;
-                const drift = direction * innerWidth * (0.16 + Math.random() * 0.34);
-                const rise = vertical * innerHeight * (0.29 + Math.random() * 0.33);
-                const delay = (row + column) * 6 + Math.random() * 45;
-                const motion = { duration: 540, delay, fill: "both" };
-                const arrival = flight.animate([
-                    { transform: `translate3d(${drift}px,${rise}px,0) scale(.24)`, opacity: 0 },
-                    { transform: "translate3d(0,0,0) scale(1)", opacity: 1 }
-                ], { ...motion, easing: "cubic-bezier(.19,.64,.39,1)" });
-
-                const angle = 360 * Math.random();
-                const resting = `rotateX(${angle + 260}deg) rotateY(181deg) rotateZ(-37deg)`;
-                cube.animate([
-                    { transform: `rotateX(${angle}deg) rotateY(-94deg) rotateZ(34deg)` },
-                    { transform: resting }
-                ], { ...motion, easing: "ease-out" });
-                entries.push({ arrival, flight, cube, drift, rise, angle, resting });
+                const across = axes[side.across];
+                const down = axes[side.down];
+                const ax = across[0] * side.acrossSign * size;
+                const ay = across[1] * side.acrossSign * size;
+                const dx = down[0] * side.downSign * size;
+                const dy = down[1] * side.downSign * size;
+                const px = x + (normal[0] * side.sign * size - ax - dx) / 2;
+                const py = y + (normal[1] * side.sign * size - ay - dy) / 2;
+                ink.setTransform(ax, ay, dx, dy, px, py);
+                ink.drawImage(faces[index], 0, 0, 1, 1);
             }
-
-            return entries;
         }
 
-        function disperseCurtain(entries) {
-            const options = { duration: 660, delay: 165, fill: "both", easing: "ease-in" };
-            for (const { flight, cube, drift, rise, angle, resting } of entries) {
-                flight.animate([
-                    { transform: "translate3d(0,0,0) scale(1)", opacity: 1 },
-                    { transform: `translate3d(${drift * .74}px,${-rise}px,0) scale(.65)`, opacity: 0 }
-                ], options);
-                cube.animate([
-                    { transform: resting },
-                    { transform: `rotateX(${angle + 480}deg) rotateY(385deg) rotateZ(46deg)` }
-                ], options);
+        function prepareCurtain() {
+            if (!curtain?.isConnected) return [];
+            const faces = makeCurtainFaces();
+            if (!faces.every(Boolean)) return [];
+
+            return Array.from({ length: 4 }, (_, quadrant) => {
+                const surface = document.createElement("canvas");
+                const paint = surface.getContext("2d");
+                if (!paint) return null;
+                surface.className = "curtain-panel";
+                surface.style.insetInlineStart = `${quadrant % 2 * 50}%`;
+                surface.style.insetBlockStart = `${Math.floor(quadrant / 2) * 50}%`;
+                curtain.append(surface);
+                const dice = Array.from({ length: 6 }, () => ({
+                    shiftX: (Math.random() - .5) * .45,
+                    shiftY: (Math.random() - .5) * .42,
+                    size: .64 + Math.random() * .36,
+                    pitch: .25 + Math.random() * .56,
+                    yaw: (.32 + Math.random() * .65) * (Math.random() < .5 ? -1 : 1),
+                    tilt: (Math.random() - .5) * 1.5
+                }));
+                return { surface, paint, dice, faces };
+            });
+        }
+
+        // Cada quadrante é desenhado uma vez e animado pelo compositor.
+        function paintCurtain() {
+            const w = Math.max(1, innerWidth);
+            const h = Math.max(1, innerHeight);
+            const ratio = Math.min(devicePixelRatio || 1, 1.1, Math.sqrt(390000 / (w * h)));
+            const width = Math.max(1, Math.round(w * ratio / 2));
+            const height = Math.max(1, Math.round(h * ratio / 2));
+            const columns = w < 640 ? 2 : 3;
+            const rows = 6 / columns;
+            const cell = Math.min(width / columns, height / rows);
+
+            for (const { surface, paint, dice, faces } of curtainPanels) {
+                if (surface.width === width && surface.height === height
+                    && surface.dataset.columns === String(columns)) continue;
+                surface.width = width;
+                surface.height = height;
+                surface.dataset.columns = String(columns);
+                for (const [index, die] of dice.entries()) {
+                    const x = (index % columns + .5 + die.shiftX) * width / columns;
+                    const y = (Math.floor(index / columns) + .5 + die.shiftY) * height / rows;
+                    drawCurtainCube(paint, faces, x, y, die.size * cell, die.pitch, die.yaw, die.tilt);
+                }
+            }
+        }
+
+        async function playCurtain(wash) {
+            const motions = [];
+            const duration = 1120;
+            let swapTimer;
+
+            try {
+                paintCurtain();
+                curtain.hidden = false;
+                window.addEventListener("resize", paintCurtain, { passive: true });
+                const backdrop = wash.animate([
+                    { opacity: 0, easing: "ease-out" },
+                    { opacity: 1, offset: .29 },
+                    { opacity: 1, offset: .58, easing: "ease-in" },
+                    { opacity: 0 }
+                ], { duration, fill: "both" });
+                motions.push(backdrop);
+
+                for (const [index, { surface }] of curtainPanels.entries()) {
+                    const horizontal = index % 2 ? 1 : -1;
+                    const vertical = index >= 2 ? 1 : -1;
+                    const travelX = horizontal * (25 + index * 4);
+                    const travelY = vertical * (31 - index * 2);
+                    const turn = horizontal * vertical * (22 + index * 7);
+                    const delay = index * 19;
+                    motions.push(surface.animate([
+                        {
+                            opacity: 0,
+                            transform: `translate3d(${travelX}vw,${travelY}vh,0) rotate(${-turn}deg) scale(.52)`,
+                            easing: "cubic-bezier(.12,.67,.25,1)"
+                        },
+                        {
+                            offset: .48,
+                            opacity: 1,
+                            transform: "translate3d(0,0,0) rotate(0deg) scale(1)",
+                            easing: "ease-in-out"
+                        },
+                        {
+                            offset: .60,
+                            opacity: 1,
+                            transform: `translate3d(${travelX * -.06}vw,${travelY * -.06}vh,0) rotate(${turn * .14}deg) scale(1.025)`,
+                            easing: "ease-in"
+                        },
+                        {
+                            opacity: 0,
+                            transform: `translate3d(${travelX * .73}vw,${travelY * -.83}vh,0) rotate(${turn}deg) scale(.78)`
+                        }
+                    ], { duration: duration - delay, delay, fill: "both" }));
+                }
+
+                const finished = Promise.all(motions.map(motion => motion.finished));
+                await backdrop.ready;
+                swapTimer = setTimeout(() => showCatalog(true), 365);
+                await finished;
+            } finally {
+                clearTimeout(swapTimer);
+                curtain.hidden = true;
+                window.removeEventListener("resize", paintCurtain);
+                for (const motion of motions) motion.cancel();
             }
         }
 
@@ -1092,30 +1184,18 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
             catalog.inert = true;
 
             try {
-                const animate = curtain && typeof curtain.animate === "function"
-                    && !matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-                if (animate) {
+                const wash = curtain?.querySelector(".curtain-wash");
+                if (wash?.animate && curtainPanels.length && curtainPanels.every(Boolean)
+                    && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
                     document.body.classList.add("is-changing");
-                    curtain.hidden = false;
-                    const entries = fillCurtain();
-                    const veil = curtain.animate([{ opacity: 0 }, { opacity: 1 }],
-                        { duration: 620, fill: "both", easing: "ease-out" });
-                    await Promise.all([veil.finished, ...entries.map(({ arrival }) => arrival.finished)]);
-                    showCatalog(true);
-                    disperseCurtain(entries);
-                    await curtain.animate([{ opacity: 1 }, { opacity: 0 }],
-                        { duration: 660, delay: 165, fill: "both", easing: "ease-in-out" }).finished;
-                } else {
-                    showCatalog(false);
+                    await playCurtain(wash);
                 }
+                if (catalog.hidden) showCatalog(false);
             } catch {
                 if (catalog.hidden) showCatalog(false);
             } finally {
                 if (curtain && !curtain.hidden) {
                     curtain.hidden = true;
-                    curtain.getAnimations?.({ subtree: true }).forEach(animation => animation.cancel());
-                    curtain.replaceChildren();
                 }
                 document.body.classList.remove("is-changing");
                 catalog.inert = false;
@@ -1228,9 +1308,8 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
             const enclosingRadius = Math.sqrt(3) * cornerCore + cornerRadius + pipOffset;
             const body = new THREE.Mesh(
                 new RoundedBoxGeometry(2, 2, 2, 4, cornerRadius),
-                new THREE.MeshPhysicalMaterial({
-                    color: 0xbf0b2c, metalness: 0.10, roughness: 0.24,
-                    clearcoat: 1, clearcoatRoughness: 0.16
+                new THREE.MeshPhongMaterial({
+                    color: 0xb30a29, specular: 0xdb8653, shininess: 62
                 })
             );
 
@@ -1345,7 +1424,7 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
                 dice.quaternion.copy(roll.toPose);
                 velocity.set(0, 0, 0);
                 roll.phase = "hold";
-                roll.elapsed = 0;
+                syncBufferRatio();
                 if (result) result.textContent = `Você tirou ${roll.value}.`;
             }
 
@@ -1372,17 +1451,7 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
             }
 
             function advance(dt) {
-                if (!roll) return;
-
-                if (roll.phase === "hold") {
-                    roll.elapsed += dt;
-                    if (roll.elapsed >= 2) {
-                        roll = null;
-                        syncControl();
-                        void openCatalog();
-                    }
-                    return;
-                }
+                if (!roll || roll.phase === "hold") return;
 
                 if (roll.phase === "return") {
                     updateReturn(dt);
@@ -1477,8 +1546,35 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
                     setSceneStatus("O dado 3D está indisponível.", true);
                 }
 
-                if (roll) queueFrame();
-                else lastTime = null;
+                if (roll?.phase === "hold") {
+                    const settled = roll;
+                    if (settled.timer === undefined) {
+                        settled.timer = setTimeout(() => {
+                            settled.timer = undefined;
+                            if (roll !== settled || document.hidden) return;
+                            roll = null;
+                            syncControl();
+                            void openCatalog();
+                        }, 650);
+                    }
+                    lastTime = null;
+                } else if (roll) {
+                    queueFrame();
+                } else {
+                    lastTime = null;
+                }
+            }
+
+            function bufferRatio(areaWidth, areaHeight) {
+                const moving = roll && roll.phase !== "hold";
+                const pixels = moving ? 260000 : 565000;
+                return Math.min(devicePixelRatio || 1, 1.5, Math.sqrt(pixels / (areaWidth * areaHeight)));
+            }
+
+            function syncBufferRatio() {
+                if (!contextReady || width < 1 || height < 1) return;
+                const ratio = bufferRatio(width, height);
+                if (ratio !== renderer.getPixelRatio()) renderer.setDrawingBufferSize(width, height, ratio);
             }
 
             function resize() {
@@ -1493,7 +1589,7 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
                 const minimumSpace = Math.min(nextHeight / 2, size * restingHalfHeight + 12);
                 const centerInArena = clamp(midScreen - arena.offsetTop, minimumSpace, nextHeight - minimumSpace);
                 const nextHomeY = nextHeight / 2 - centerInArena;
-                const ratio = Math.min(window.devicePixelRatio || 1, 1.75, Math.sqrt(1800000 / (nextWidth * nextHeight)));
+                const ratio = bufferRatio(nextWidth, nextHeight);
 
                 if (width === nextWidth && height === nextHeight && homeY === nextHomeY
                     && ratio === renderer.getPixelRatio()) {
@@ -1557,6 +1653,7 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
                         0
                     );
                     spin.set(-directionY * 12.4, directionX * 14.2, 4.4);
+                    syncBufferRatio();
                 }
 
                 queueFrame();
@@ -1669,7 +1766,7 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
             const pipRadius = 0.118;
             const pips = new THREE.InstancedMesh(
                 new THREE.CircleGeometry(pipRadius, 24),
-                new THREE.MeshStandardMaterial({ color: 0xffedc6, roughness: 0.32 }),
+                new THREE.MeshLambertMaterial({ color: 0xffedc6 }),
                 21
             );
             const stamp = new THREE.Object3D();
@@ -1700,6 +1797,15 @@ Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e
             pips.instanceMatrix.needsUpdate = true;
             pips.computeBoundingSphere();
             return { pips, landings };
+        }
+
+        let curtainPanels = [];
+        if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            try {
+                curtainPanels = prepareCurtain();
+            } catch {
+                curtainPanels = [];
+            }
         }
 
         setSceneStatus("Carregando o dado 3D…");
