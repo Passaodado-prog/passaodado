@@ -3,32 +3,32 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0a1320">
-    <title>Passa o Dado | Menos telas. Mais momentos.</title>
+    <meta name="theme-color" content="#fbecd2">
+    <title>Passa o Dado | Aluguel de jogos de tabuleiro</title>
     <link rel="icon" href="data:,">
     <style>
-        * {
-            box-sizing: border-box;
+        :root {
+            color-scheme: light;
+            --ink: #492610;
+            --red: #bf0b2c;
+            --cream: #fff7e8;
         }
+
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
-            color: #fff;
-            background:
-                radial-gradient(ellipse at 50% 54%, #284765 0%, transparent 58%),
-                radial-gradient(ellipse at 1% 90%, #133840, transparent 60%),
-                radial-gradient(ellipse at 96% 9%, #1f2c49, transparent 70%),
-                #0a1320;
+            color: var(--ink);
+            background: radial-gradient(ellipse at 50% 48%, #fff8ec, #fae9ca 68%, #f1ce91);
             background-attachment: fixed;
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        button {
-            font: inherit;
-        }
+        button { font: inherit; }
 
-        button:focus-visible {
-            outline: 2px solid #b1deff;
+        button:focus-visible,
+        .dice-canvas:focus-visible {
+            outline: 2px solid var(--red);
             outline-offset: 4px;
         }
 
@@ -42,18 +42,18 @@
         .pattern-rail {
             position: absolute;
             inset-block: 0;
-            width: min(27vw, 350px);
+            width: min(26vw, 330px);
             overflow: hidden;
         }
 
         .pattern-left {
             left: 0;
-            mask-image: linear-gradient(90deg, #000 0%, #000 49%, transparent 100%);
+            mask-image: linear-gradient(90deg, #000 0%, #000 39%, transparent 100%);
         }
 
         .pattern-right {
             right: 0;
-            mask-image: linear-gradient(270deg, #000 0%, #000 49%, transparent 100%);
+            mask-image: linear-gradient(270deg, #000 0%, #000 39%, transparent 100%);
         }
 
         .pattern-rail canvas {
@@ -75,45 +75,51 @@
         .experience {
             position: relative;
             display: grid;
-            grid-template-rows: auto minmax(112px, 1fr) auto;
+            grid-template-rows: auto minmax(120px, 1fr) auto;
             height: 100vh;
             height: 100dvh;
-            min-height: 320px;
+            min-height: 315px;
             text-align: center;
         }
 
         .hero {
             grid-row: 1;
-            padding: clamp(18px, 6vh, 60px) 18px 10px;
+            min-width: 0;
+            padding: clamp(14px, 4vh, 36px) 18px 9px;
         }
 
-        .brand {
-            margin: 0 0 clamp(12px, 3.6vh, 32px);
-            font-size: 0.95rem;
-            font-weight: 900;
-            letter-spacing: 0.36em;
-        }
-
-        .brand span {
-            color: #58baff;
+        .brand-logo {
+            display: block;
+            width: clamp(150px, 24vw, 258px);
+            height: auto;
+            margin: 0 auto clamp(12px, 2.3vh, 20px);
         }
 
         .hero h1 {
+            max-width: 1020px;
             margin: 0 auto;
-            max-width: 760px;
-            font-size: clamp(1.35rem, 4.6vw, 2.375rem);
-            line-height: 1.18;
+            color: var(--red);
+            font-size: clamp(1.3rem, 4.35vw, 2.8rem);
+            font-weight: 900;
+            letter-spacing: -0.035em;
+            line-height: 1.09;
             text-wrap: balance;
-            text-shadow: 0 3px 15px #0008;
         }
 
         .hero-copy {
-            max-width: 36rem;
-            margin: clamp(8px, 1.8vh, 15px) auto 0;
-            color: #c4d5ed;
-            font-size: clamp(0.8rem, 2vw, 0.95rem);
+            max-width: 730px;
+            margin: 10px auto 0;
+            color: #5a331c;
+            font-size: clamp(0.88rem, 2vw, 1.05rem);
             line-height: 1.45;
-            text-shadow: 0 1px 5px #0a1320;
+            text-wrap: pretty;
+        }
+
+        .hero-invitation {
+            margin: 8px 0 0;
+            color: #792a16;
+            font-size: clamp(0.85rem, 2vw, 1.02rem);
+            line-height: 1.35;
         }
 
         .arena {
@@ -129,80 +135,41 @@
             display: block;
             width: 100%;
             height: 100%;
-            touch-action: none;
+            touch-action: manipulation;
         }
 
-        .dice-canvas[hidden] {
-            display: none;
-        }
-
-        .dice-canvas:focus-visible {
-            outline: 2px solid #b1deff;
-            outline-offset: -4px;
-        }
-
-        .dice-canvas.grabbable {
-            cursor: grab;
-        }
-
-        .dice-canvas.dragging {
-            cursor: grabbing;
-        }
+        .dice-canvas[hidden] { display: none; }
+        .dice-canvas:focus-visible { outline-offset: -5px; }
+        .dice-canvas.pressable { cursor: pointer; }
 
         .scene-status {
             position: absolute;
             inset: 50% 18px auto;
             margin: 0;
-            color: #c4d5ed;
             transform: translateY(-50%);
             font-size: 0.95rem;
         }
 
         .controls {
-            position: relative;
             grid-row: 3;
-            padding: 4px 16px clamp(45px, 6.8vh, 68px);
-        }
-
-        .roll-result {
-            min-height: 1.5em;
-            margin: 0;
-            color: #a6dfff;
-            font-size: clamp(1.05rem, 3vw, 1.25rem);
-            font-weight: 800;
+            padding: 8px 16px max(clamp(22px, 5vh, 46px), env(safe-area-inset-bottom));
         }
 
         .hint {
-            margin: 2px 0 0;
-            color: #b0c2dd;
-            font-size: 0.8rem;
-            line-height: 1.45;
-            text-shadow: 0 1px 5px #0a1320;
+            margin: 0;
+            color: #792a16;
+            font-size: clamp(0.85rem, 2vw, 0.99rem);
+            font-weight: 700;
         }
 
-        .skip,
-        .back {
-            padding: 8px;
-            border: 0;
-            border-radius: 4px;
-            background: transparent;
-            color: #c4d5ed;
-            text-decoration: underline;
-            text-underline-offset: 3px;
-            cursor: pointer;
-        }
-
-        .skip:hover,
-        .back:hover {
-            color: #fff;
-        }
-
-        .skip {
+        .sr-only {
             position: absolute;
-            right: max(12px, env(safe-area-inset-right));
-            bottom: max(9px, env(safe-area-inset-bottom));
-            font-size: 0.8rem;
-            text-shadow: 0 1px 5px #0a1320;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            overflow: hidden;
+            clip-path: inset(50%);
+            white-space: nowrap;
         }
 
         .welcome {
@@ -215,14 +182,12 @@
             padding: clamp(18px, 5vw, 48px);
             overflow: auto;
             border: 0;
-            color: #fff;
-            background: radial-gradient(ellipse at center, #244560, #0a1320 82%);
+            color: var(--ink);
+            background: radial-gradient(ellipse at center, #fff8ec, #f4d6a3);
             text-align: center;
         }
 
-        .welcome[open] {
-            display: grid;
-        }
+        .welcome[open] { display: grid; }
 
         .welcome-content {
             width: min(100%, 580px);
@@ -231,87 +196,107 @@
 
         .welcome h2 {
             margin: 0 0 clamp(12px, 3vh, 22px);
+            color: var(--red);
             font-size: clamp(2rem, 7vw, 4.05rem);
             line-height: 1.09;
-            text-shadow: 0 4px 25px #0009;
         }
 
         .welcome-copy {
             margin: 0 auto clamp(16px, 3.5vh, 28px);
-            color: #dce8f8;
             font-size: clamp(0.95rem, 2.4vw, 1.0625rem);
             line-height: 1.55;
         }
 
         .cta {
-            display: inline-block;
             padding: 14px 23px;
             border: 0;
             border-radius: 8px;
-            background: #54b9ff;
-            color: #071322;
+            background: var(--red);
+            color: var(--cream);
             font-size: 0.9rem;
             font-weight: 900;
             letter-spacing: 0.07em;
             cursor: pointer;
         }
 
-        .cta:hover {
-            background: #89d0ff;
-        }
+        .cta:hover { background: #9d0825; }
 
         .library-status {
             margin: 12px 0 0;
-            color: #c4d5ed;
             font-size: 0.9rem;
         }
 
-        .library-status:empty {
-            margin: 0;
-        }
+        .library-status:empty { margin: 0; }
 
         .back {
             margin-top: 8px;
+            padding: 8px;
+            border: 0;
+            border-radius: 4px;
+            background: transparent;
+            color: #792a16;
             font-size: 0.85rem;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            cursor: pointer;
         }
 
         @media (max-width: 600px) {
-            .pattern-rail {
-                width: 29vw;
-                opacity: 0.74;
+            .pattern-rail { width: 29vw; opacity: 0.78; }
+        }
+
+        @media (max-height: 650px) {
+            .hero { padding-top: 13px; }
+            .brand-logo { width: clamp(135px, 24vw, 210px); margin-bottom: 10px; }
+            .hero-copy { margin-top: 7px; }
+            .hero-invitation { margin-top: 6px; }
+        }
+
+        @media (max-height: 520px) and (max-width: 619px) {
+            .hero {
+                display: grid;
+                grid-template-columns: minmax(100px, 122px) 1fr;
+                align-items: center;
+                gap: 6px 10px;
+                padding: 10px 14px 7px;
             }
+
+            .hero > div { display: contents; }
+            .brand-logo { width: 100%; margin: 0; }
+            .hero h1 { font-size: clamp(1rem, 5vw, 1.6rem); }
+
+            .hero-copy,
+            .hero-invitation {
+                grid-column: 1 / -1;
+                margin: 0;
+            }
+
+            .hero-copy { font-size: 0.8rem; line-height: 1.35; }
+            .hero-invitation { font-size: 0.78rem; letter-spacing: -0.02em; }
+            .controls { padding-bottom: max(13px, env(safe-area-inset-bottom)); }
+        }
+
+        @media (max-height: 520px) and (min-width: 620px) {
+            .hero {
+                display: grid;
+                grid-template-columns: minmax(104px, 153px) 1fr;
+                align-items: center;
+                gap: clamp(14px, 3vw, 34px);
+                width: min(100%, 1000px);
+                margin: 0 auto;
+                padding: 12px 24px 9px;
+                text-align: left;
+            }
+
+            .brand-logo { width: 100%; margin: 0; }
+            .hero h1 { font-size: clamp(1rem, 3.3vw, 1.68rem); text-wrap: wrap; }
+            .hero-copy { font-size: 0.84rem; line-height: 1.35; }
+            .hero-invitation { font-size: 0.8rem; }
+            .controls { padding-bottom: max(13px, env(safe-area-inset-bottom)); }
         }
 
         @media (prefers-reduced-motion: reduce) {
             .pattern-rail canvas { animation: none; }
-        }
-
-        @media (max-height: 500px) {
-            .hero {
-                padding-top: 12px;
-                padding-bottom: 4px;
-            }
-
-            .brand {
-                margin-bottom: 8px;
-                font-size: 0.78rem;
-            }
-
-            .hero h1 {
-                font-size: clamp(1.08rem, 4vw, 1.75rem);
-            }
-
-            .hero-copy {
-                margin-top: 6px;
-            }
-
-            .controls {
-                padding-bottom: max(34px, env(safe-area-inset-bottom));
-            }
-
-            .skip {
-                bottom: max(3px, env(safe-area-inset-bottom));
-            }
         }
     </style>
     <script type="importmap">
@@ -329,26 +314,27 @@
         <div class="pattern-rail pattern-right"><canvas></canvas></div>
     </div>
 
-    <main class="experience">
+    <main class="experience" id="experience">
         <header class="hero">
-            <p class="brand">PASSA <span>O</span> DADO</p>
-            <h1>TODA GRANDE HISTÓRIA<br>COMEÇA COM UM PRIMEIRO LANCE.</h1>
-            <p class="hero-copy">Gire o dado e descubra o que preparamos para você.</p>
+            <canvas class="brand-logo" id="brand-logo" width="1278" height="422"
+                role="img" aria-label="Passa o Dado">Passa o Dado</canvas>
+            <div>
+                <h1>SUA PRÓXIMA DIVERSÃO COMEÇA AQUI!</h1>
+                <p class="hero-copy">Alugue jogos de tabuleiro, reúna quem você gosta e transforme qualquer encontro em uma experiência inesquecível.</p>
+                <p class="hero-invitation"><strong>Gire o dado e descubra nosso universo de jogos!</strong></p>
+            </div>
         </header>
 
         <div class="arena" id="arena">
             <canvas class="dice-canvas" id="dice-canvas" role="button" tabindex="0"
-                aria-label="Rolar o dado" aria-describedby="hint" aria-disabled="true" hidden></canvas>
+                aria-label="Girar o dado" aria-describedby="hint" aria-disabled="true" hidden></canvas>
             <p class="scene-status" id="scene-status" role="status" hidden></p>
-            <noscript>
-                <p class="scene-status">Ative o JavaScript para rolar o dado.</p>
-            </noscript>
+            <noscript><p class="scene-status">Ative o JavaScript para girar o dado.</p></noscript>
         </div>
 
         <footer class="controls">
-            <p class="roll-result" id="roll-result" role="status" aria-atomic="true"></p>
-            <p class="hint" id="hint">Clique, toque ou arraste o dado e solte para lançar.</p>
-            <button class="skip" id="skip" type="button" aria-haspopup="dialog" aria-controls="welcome">Pular animação</button>
+            <p class="hint" id="hint">Aperte no dado para girar</p>
+            <span class="sr-only" id="roll-result" role="status" aria-atomic="true"></span>
         </footer>
     </main>
 
@@ -365,11 +351,11 @@
     </dialog>
 
     <script type="module">
+        const experience = document.getElementById("experience");
         const arena = document.getElementById("arena");
         const canvas = document.getElementById("dice-canvas");
         const sceneStatus = document.getElementById("scene-status");
         const result = document.getElementById("roll-result");
-        const skip = document.getElementById("skip");
         const welcome = document.getElementById("welcome");
         const library = document.getElementById("library");
         const libraryStatus = document.getElementById("library-status");
@@ -390,12 +376,50 @@
             }
         }
 
-        skip?.addEventListener("click", showWelcome);
         library?.addEventListener("click", () => {
             if (libraryStatus) {
                 libraryStatus.textContent = "A biblioteca de jogos ainda será conectada.";
             }
         });
+
+        function paintLogo() {
+            const logo = document.getElementById("brand-logo");
+            if (!(logo instanceof HTMLCanvasElement) || typeof Path2D !== "function") return;
+            const ink = logo.getContext("2d");
+            if (!ink) return;
+
+            function fill(path, color, x = 0, y = 0) {
+                ink.save();
+                ink.translate(x, y);
+                ink.fillStyle = color;
+                ink.fill(new Path2D(path), "evenodd");
+                ink.restore();
+            }
+
+            const gold = "#f0ac29";
+            const pale = "#f4dbaf";
+            const red = "#bf0b2c";
+            fill("M286 29C313 43 352 64 368 75C377 81 380 90 375 98C373 101 367 105 359 109C301 145 243 194 229 266C217 314 228 345 250 367C267 381 286 380 306 377L233 419C226 423 216 423 209 419C205 367 206 305 178 253C151 203 103 169 67 170C40 170 22 187 2 218L0 154C0 130 6 112 19 115C43 125 72 148 103 159C155 174 226 168 269 147C300 131 315 109 311 77C307 56 295 40 286 29Z", "#482411");
+            fill("M168 18C186 4 199 -5 217 2L255 21C279 35 296 52 300 72C305 98 298 119 280 132C253 151 220 155 187 157C121 161 89 145 52 123L21 103C32 94 50 83 63 78C77 73 93 82 107 91C140 115 169 125 200 110C229 98 240 82 230 64C220 44 191 30 168 18Z", gold);
+            fill("M127 90C128 76 124 57 133 41C141 25 155 28 170 30C189 36 210 50 219 64C227 79 216 92 202 98C178 109 149 105 127 90Z", pale);
+            fill("M52 337C23 327 11 315 11 292V245C13 213 27 192 50 185C84 174 115 190 144 223C174 258 194 306 195 344L197 420C179 415 157 401 149 387C144 379 143 368 143 350C144 321 147 298 132 274C121 256 105 245 86 246C61 246 52 271 51 300Z", gold);
+            fill("M63 326C61 303 62 277 71 263C81 251 99 257 111 268C124 281 132 305 134 332C120 339 104 350 90 353C75 356 68 345 63 326Z", pale);
+            fill("M385 109C388 130 387 145 385 156C383 168 370 178 355 186C310 211 286 239 287 273C286 294 297 311 316 307C340 303 367 285 385 275L386 303C386 320 377 328 367 335L321 360C297 373 274 371 255 356C233 339 232 309 238 284C250 242 276 197 308 169C332 147 359 127 385 109Z", gold);
+            fill("M327 215C340 202 354 208 366 218C382 232 392 244 382 257C367 276 338 291 315 296C302 299 295 292 296 273C297 253 308 230 327 215Z", pale);
+
+            const letterA = "M653 10H788V175H730V127H712V175H653ZM712 57V80H729V57Z";
+            const letterS = "M930 72H876C872 65 868 61 860 61C852 61 849 65 854 70C861 77 879 76 894 82C920 90 932 107 932 128C932 157 909 177 866 177C819 177 799 153 797 110H848C851 121 857 126 866 126C874 126 878 122 875 116C871 110 856 109 839 104C810 96 799 80 799 56C799 27 825 8 862 8C903 8 924 29 930 72Z";
+            fill("M509 10H568V77H574C581 77 586 74 586 67C586 60 581 57 575 57V10C617 10 645 33 645 67C645 100 618 124 576 124H568V175H509Z", red);
+            fill(letterA, red);
+            fill(letterS, red);
+            fill(letterS, red, 141);
+            fill(letterA, red, 428);
+            fill("M521 252C476 253 447 288 447 337C447 386 476 421 521 422V362C512 360 507 350 507 337C507 324 512 315 521 313ZM527 252C570 253 601 288 601 337C601 386 573 421 527 422V362C536 360 542 350 542 337C542 324 536 315 527 313Z", red);
+            fill("M671 255H729C782 255 817 288 817 337C817 388 785 420 729 420H671V309H730V372H732C747 372 757 360 757 337C757 315 746 302 729 302H671Z", red);
+            fill(letterA, red, 172, 245);
+            fill("M970 255H1028C1081 255 1116 288 1116 337C1116 389 1083 420 1028 420H970ZM1029 302V373C1046 372 1056 359 1056 337C1056 316 1046 303 1029 302Z", red);
+            fill("M1200 252C1245 252 1278 287 1278 337C1278 388 1246 422 1200 422C1155 422 1124 388 1124 337C1124 287 1155 252 1200 252ZM1200 312C1189 312 1184 323 1184 337C1184 352 1189 362 1200 362C1212 362 1218 352 1218 337C1218 323 1212 312 1200 312Z", red);
+        }
 
         function startPattern() {
             if (typeof Path2D !== "function") return;
@@ -439,7 +463,7 @@
                 [0.12, 0.74, 0.77, -0.21], [0.74, 0.82, 1.03, 0.31],
                 [0.36, 0.91, 1.12, 0.16], [0.81, 0.95, 0.57, -0.24]
             ];
-            const colors = ["#75abc0", "#86afd5", "#72a9a9"];
+            const colors = ["#a75728", "#b3263c", "#996132"];
             const rails = [...document.querySelectorAll(".pattern-rail")];
             let pending = false;
 
@@ -480,7 +504,7 @@
                             ctx.rotate(side ? -tilt : tilt);
                             ctx.scale(size, size);
                             ctx.translate(-24, -24);
-                            ctx.globalAlpha = index % 3 === 0 ? 0.62 : 0.43;
+                            ctx.globalAlpha = index % 3 === 0 ? 0.41 : 0.28;
                             ctx.strokeStyle = colors[(index + side) % colors.length];
                             ctx.stroke(piece.path);
 
@@ -508,7 +532,8 @@
         }
 
         async function startScene() {
-            if (!arena?.isConnected || !(canvas instanceof HTMLCanvasElement) || !arena.contains(canvas)) {
+            if (!experience?.isConnected || !arena?.isConnected
+                || !(canvas instanceof HTMLCanvasElement) || !arena.contains(canvas)) {
                 setSceneStatus("O dado 3D está indisponível.");
                 return;
             }
@@ -525,7 +550,7 @@
                     import("three/addons/geometries/RoundedBoxGeometry.js")
                 ]);
 
-                if (!arena.isConnected || !canvas.isConnected || !arena.contains(canvas)) {
+                if (!experience.isConnected || !arena.isConnected || !canvas.isConnected || !arena.contains(canvas)) {
                     setSceneStatus("O dado 3D está indisponível.");
                     return;
                 }
@@ -547,21 +572,21 @@
             camera.position.z = 500;
             camera.updateMatrixWorld();
 
-            const key = new THREE.DirectionalLight(0xf3f8ff, 3);
+            const key = new THREE.DirectionalLight(0xffefdb, 3.1);
             key.position.set(-3, 5, 7);
-            const rim = new THREE.DirectionalLight(0x83caff, 1.5);
+            const rim = new THREE.DirectionalLight(0xffbd59, 1.55);
             rim.position.set(4, 1, -4);
-            scene.add(key, rim, new THREE.HemisphereLight(0xd8ecff, 0x354c88, 1.65));
+            scene.add(key, rim, new THREE.HemisphereLight(0xfff7df, 0xb25029, 1.65));
 
             const cornerRadius = 0.22;
             const pipOffset = 0.0025;
             const cornerCore = 1 - cornerRadius;
-            const enclosingRadius = Math.sqrt(3) + pipOffset;
+            const enclosingRadius = Math.sqrt(3) * cornerCore + cornerRadius + pipOffset;
             const body = new THREE.Mesh(
                 new RoundedBoxGeometry(2, 2, 2, 4, cornerRadius),
                 new THREE.MeshPhysicalMaterial({
-                    color: 0x0755d8, metalness: 0.21, roughness: 0.25,
-                    clearcoat: 1, clearcoatRoughness: 0.19
+                    color: 0xbf0b2c, metalness: 0.13, roughness: 0.29,
+                    clearcoat: 1, clearcoatRoughness: 0.21
                 })
             );
 
@@ -572,8 +597,8 @@
             scene.add(dice);
 
             const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
-            const velocity = new THREE.Vector2();
-            const angularVelocity = new THREE.Vector3();
+            const velocity = new THREE.Vector3();
+            const spin = new THREE.Vector3();
             const rotation = new THREE.Quaternion();
             const rotationStep = new THREE.Euler();
             const rotationMatrix = new THREE.Matrix4();
@@ -584,16 +609,16 @@
 
             let width = 0;
             let height = 0;
+            let homeY = 0;
             let frame = null;
             let lastTime = null;
-            let drag = null;
+            let press = null;
             let roll = null;
             let contextReady = !context.isContextLost();
             let motionReady = true;
             let projectBounds = true;
 
             function clampPosition(bounce = false) {
-                // As linhas do layout mantêm os textos fora da área de colisão.
                 let halfWidth = enclosingRadius;
                 let halfHeight = enclosingRadius;
 
@@ -613,26 +638,23 @@
                 const { position } = dice;
                 const x = clamp(position.x, -limitX, limitX);
                 const y = clamp(position.y, -limitY, limitY);
+                let impacts = 0;
 
-                if (bounce && (position.x - x) * velocity.x > 0) velocity.x *= -0.78;
-                if (bounce && (position.y - y) * velocity.y > 0) velocity.y *= -0.78;
+                if (bounce && (position.x - x) * velocity.x > 0) {
+                    velocity.x *= -0.86;
+                    impacts += 1;
+                }
+
+                if (bounce && (position.y - y) * velocity.y > 0) {
+                    velocity.y *= -0.86;
+                    impacts += 1;
+                }
+
                 position.set(x, y, 0);
-            }
-
-            function rotate(x, y, z) {
-                rotation.setFromEuler(rotationStep.set(x, y, z));
-                dice.quaternion.premultiply(rotation).normalize();
-            }
-
-            function move(dt, friction) {
-                dice.position.x += velocity.x * dt;
-                dice.position.y += velocity.y * dt;
-                clampPosition(true);
-                velocity.multiplyScalar(Math.exp(-friction * dt));
+                return impacts;
             }
 
             function landingFor(value) {
-                // Seleciona a rotação mais próxima com a face sorteada voltada para a câmera.
                 const choices = landings[value - 1];
                 let nearest = choices[0];
                 let best = -1;
@@ -648,20 +670,59 @@
                 return nearest;
             }
 
+            function beginReturn(duration) {
+                const pad = dice.scale.x * enclosingRadius + 4;
+                const limitX = Math.max(0, width / 2 - pad);
+                const limitY = Math.max(0, height / 2 - pad);
+                const distance = Math.hypot(dice.position.x, dice.position.y - homeY);
+                roll.duration = duration ?? clamp(0.74 + distance / 1800, 0.78, 1.12);
+                roll.from = dice.position.clone();
+                // A tangente inicial segue a velocidade da última batida.
+                roll.control = roll.from.clone().addScaledVector(velocity, roll.duration / 3);
+                roll.control.x = clamp(roll.control.x, -limitX, limitX);
+                roll.control.y = clamp(roll.control.y, -limitY, limitY);
+                roll.fromPose = dice.quaternion.clone();
+                roll.toPose ??= landingFor(roll.value);
+                roll.phase = "return";
+                roll.elapsed = 0;
+            }
+
             function finishRoll() {
-                dice.quaternion.copy(roll.to);
-                velocity.set(0, 0);
-                clampPosition();
+                dice.position.set(0, homeY, 0);
+                dice.quaternion.copy(roll.toPose);
+                velocity.set(0, 0, 0);
                 roll.phase = "hold";
                 roll.elapsed = 0;
                 if (result) result.textContent = `Você tirou ${roll.value}.`;
             }
 
+            function updateReturn(dt) {
+                roll.elapsed += dt;
+                const t = Math.min(1, roll.elapsed / roll.duration);
+                const rest = 1 - t;
+                const fromWeight = rest ** 3;
+                const controlWeight = 3 * rest * rest * t;
+
+                dice.position.copy(roll.from).multiplyScalar(fromWeight)
+                    .addScaledVector(roll.control, controlWeight);
+                dice.position.y += homeY * (1 - fromWeight - controlWeight);
+                dice.quaternion.slerpQuaternions(roll.fromPose, roll.toPose, 1 - rest ** 3);
+                clampPosition();
+
+                const initialWeight = 3 * rest * rest / roll.duration;
+                const finalWeight = 6 * rest * t / roll.duration;
+                velocity.copy(roll.control).sub(roll.from).multiplyScalar(initialWeight)
+                    .addScaledVector(roll.control, -finalWeight);
+                velocity.y += homeY * finalWeight;
+
+                if (t === 1) finishRoll();
+            }
+
             function advance(dt) {
                 if (!roll) return;
-                roll.elapsed += dt;
 
                 if (roll.phase === "hold") {
+                    roll.elapsed += dt;
                     if (roll.elapsed >= 2) {
                         roll = null;
                         syncControl();
@@ -670,11 +731,8 @@
                     return;
                 }
 
-                if (roll.phase === "settle") {
-                    const portion = Math.min(1, roll.elapsed / 0.46);
-                    dice.quaternion.slerpQuaternions(roll.from, roll.to, 1 - (1 - portion) ** 3);
-                    move(dt, 7.5);
-                    if (portion === 1) finishRoll();
+                if (roll.phase === "return") {
+                    updateReturn(dt);
                     return;
                 }
 
@@ -682,22 +740,28 @@
                 const step = dt / steps;
 
                 for (let index = 0; index < steps; index += 1) {
-                    rotate(angularVelocity.x * step, angularVelocity.y * step, angularVelocity.z * step);
-                    move(step, 2.15);
-                    angularVelocity.multiplyScalar(Math.exp(-1.23 * step));
-                }
+                    roll.elapsed += step;
+                    rotationStep.set(spin.x * step, spin.y * step, spin.z * step);
+                    dice.quaternion.premultiply(rotation.setFromEuler(rotationStep)).normalize();
+                    dice.position.addScaledVector(velocity, step);
 
-                if (roll.elapsed >= roll.spinFor) {
-                    roll.phase = "settle";
-                    roll.elapsed = 0;
-                    roll.from = dice.quaternion.clone();
-                    roll.to = landingFor(roll.value);
+                    const impacts = clampPosition(true);
+                    roll.impacts += impacts;
+                    velocity.multiplyScalar(Math.exp(-0.30 * step));
+                    spin.multiplyScalar(Math.exp(-0.87 * step));
+
+                    const towardsHome = (homeY - dice.position.y) * velocity.y - dice.position.x * velocity.x;
+                    if ((impacts && roll.impacts >= 3 && roll.elapsed >= 1.18 && towardsHome > 0)
+                        || roll.elapsed >= 2.22) {
+                        beginReturn();
+                        break;
+                    }
                 }
             }
 
             function canRender() {
-                return contextReady && width > 0 && height > 0 && !document.hidden
-                    && arena.isConnected && canvas.isConnected && !welcome?.open;
+                return contextReady && width > 0 && height > 0 && !document.hidden && !welcome?.open
+                    && experience.isConnected && arena.isConnected && canvas.isConnected;
             }
 
             function syncControl() {
@@ -723,8 +787,7 @@
                 } catch {
                     motionReady = false;
                     roll = null;
-                    stopDrag();
-                    dice.position.set(0, 0, 0);
+                    dice.position.set(0, homeY, 0);
                     syncControl();
                 }
 
@@ -741,44 +804,81 @@
             }
 
             function resize() {
-                if (!arena.isConnected || !canvas.isConnected) return;
+                if (!experience.isConnected || !arena.isConnected || !canvas.isConnected) return;
                 const nextWidth = arena.clientWidth;
                 const nextHeight = arena.clientHeight;
                 if (nextWidth < 1 || nextHeight < 1) return;
 
+                const midScreen = Math.min(window.innerHeight, experience.clientHeight) / 2;
+                const minimumSpace = Math.min(28, nextHeight / 2);
+                const centerInArena = clamp(midScreen - arena.offsetTop, minimumSpace, nextHeight - minimumSpace);
+                const nextHomeY = nextHeight / 2 - centerInArena;
                 const ratio = Math.min(window.devicePixelRatio || 1, 1.75, Math.sqrt(1800000 / (nextWidth * nextHeight)));
-                if (width === nextWidth && height === nextHeight && ratio === renderer.getPixelRatio()) {
+
+                if (width === nextWidth && height === nextHeight && homeY === nextHomeY
+                    && ratio === renderer.getPixelRatio()) {
                     queueFrame();
                     return;
                 }
 
-                stopDrag();
-                if (width) dice.position.x *= nextWidth / width;
-                if (height) dice.position.y *= nextHeight / height;
+                press = null;
+                if (width) {
+                    dice.position.x *= nextWidth / width;
+                    velocity.x *= nextWidth / width;
+                }
+                if (height) {
+                    dice.position.y *= nextHeight / height;
+                    velocity.y *= nextHeight / height;
+                }
                 width = nextWidth;
                 height = nextHeight;
+                homeY = nextHomeY;
                 camera.left = -width / 2;
                 camera.right = width / 2;
                 camera.top = height / 2;
                 camera.bottom = -height / 2;
                 camera.updateProjectionMatrix();
-                dice.scale.setScalar(Math.min(88, width * 0.17, height * 0.235));
+
+                const roomAtCenter = Math.min(centerInArena, height - centerInArena);
+                dice.scale.setScalar(Math.min(90, width * 0.18, height * 0.25, (roomAtCenter - 5) / enclosingRadius));
+                if (!roll || roll.phase === "hold") dice.position.set(0, homeY, 0);
                 clampPosition();
 
+                if (roll?.phase === "return") beginReturn(Math.max(0.24, roll.duration - roll.elapsed));
                 if (contextReady) renderer.setDrawingBufferSize(width, height, ratio);
                 queueFrame();
             }
 
-            function stopDrag() {
-                if (!drag) return;
-                const { id } = drag;
-                drag = null;
-                canvas.classList.remove("dragging");
-                if (canvas.isConnected && canvas.hasPointerCapture(id)) canvas.releasePointerCapture(id);
+            function canLaunch() {
+                return canRender() && motionReady && !roll;
             }
 
-            function canThrow() {
-                return canRender() && motionReady && !roll && !drag;
+            function launch() {
+                if (!canLaunch()) return;
+
+                roll = { value: 1 + Math.floor(Math.random() * 6), phase: "bounce", elapsed: 0, impacts: 0 };
+                press = null;
+                if (result) result.textContent = "";
+                canvas.classList.remove("pressable");
+                syncControl();
+
+                if (reducedMotion.matches) {
+                    roll.toPose = landingFor(roll.value);
+                    finishRoll();
+                } else {
+                    const directionX = Math.random() < 0.5 ? -1 : 1;
+                    const directionY = Math.random() < 0.5 ? -1 : 1;
+                    const clearance = 2 * (dice.scale.x * enclosingRadius + 4);
+                    const pace = 1.12 + Math.random() * 0.14;
+                    velocity.set(
+                        directionX * Math.max(width - clearance, width * 0.14) * pace,
+                        directionY * Math.max(height - clearance, height * 0.14) * (pace - 0.12),
+                        0
+                    );
+                    spin.set(-directionY * 12.4, directionX * 14.2, 4.4);
+                }
+
+                queueFrame();
             }
 
             function hitDice(event) {
@@ -789,119 +889,34 @@
                 return raycaster.intersectObject(body, false, hits).length > 0;
             }
 
-            function aimThrow(gesture, releaseTime, size) {
-                const samples = gesture.samples;
-                const first = samples[0];
-                const last = samples[samples.length - 1];
-                const elapsed = Math.max(16, last.time - first.time);
-                const pause = Math.max(0, releaseTime - last.time - 40);
-                velocity.set(last.x - first.x, first.y - last.y);
-                if (velocity.lengthSq() < 16) velocity.set(gesture.dx, gesture.dy);
-                const speed = velocity.length() * 1700 / elapsed * Math.exp(-pause / 140);
-                const minimum = clamp(size * 2.2, 550, 1090);
-                const maximum = clamp(size * 5.2, 1150, 2350);
-                velocity.normalize().multiplyScalar(clamp(speed, minimum, maximum));
-            }
-
-            function launch(gesture = null, releaseTime = 0) {
-                if (!canThrow()) return;
-                const value = 1 + Math.floor(Math.random() * 6);
-                const size = Math.min(width, height);
-                roll = { phase: "tumble", value, elapsed: 0, spinFor: gesture ? 1.18 : 1.03 };
-                if (result) result.textContent = "";
-                canvas.classList.remove("grabbable");
-                syncControl();
-
-                if (reducedMotion.matches) {
-                    roll.to = landingFor(value);
-                    finishRoll();
-                } else {
-                    if (gesture) {
-                        aimThrow(gesture, releaseTime, size);
-                    } else {
-                        const direction = Math.random() * Math.PI * 2;
-                        const speed = clamp(size * 1.65, 360, 840);
-                        velocity.set(Math.cos(direction) * speed, Math.sin(direction) * speed);
-                    }
-
-                    const speed = velocity.length();
-                    const strength = speed / Math.max(size, 180);
-                    const spin = gesture ? Math.min(27, 13 + strength * 2.5) : 11 + strength * 1.15;
-                    angularVelocity.set(
-                        2.3 - velocity.y / speed * spin,
-                        1.8 + velocity.x / speed * spin,
-                        3.7
-                    );
-                }
-
-                queueFrame();
-            }
-
-            function moveDrag(event) {
-                const { clientX: x, clientY: y, timeStamp: time } = event;
-                if (!drag.moved && Math.hypot(x - drag.startX, y - drag.startY) < 5) return;
-
-                const dx = x - drag.lastX;
-                const dy = drag.lastY - y;
-                if (dx === 0 && dy === 0) return;
-
-                drag.moved = true;
-                drag.dx = dx;
-                drag.dy = dy;
-                drag.lastX = x;
-                drag.lastY = y;
-                drag.samples.push({ x, y, time });
-                while (drag.samples.length > 2 && time - drag.samples[1].time > 110) drag.samples.shift();
-
-                dice.position.x += dx;
-                dice.position.y += dy;
-                if (!reducedMotion.matches) {
-                    rotate(clamp(-dy * 0.011, -0.72, 0.72), clamp(dx * 0.011, -0.72, 0.72), 0);
-                }
-                clampPosition();
-                queueFrame();
+            function movedDuringPress(event) {
+                return Math.hypot(event.clientX - press.x, event.clientY - press.y) > 7;
             }
 
             canvas.addEventListener("pointerdown", event => {
-                if (!canThrow() || !event.isPrimary || event.button !== 0 || !hitDice(event)) return;
-
-                const { clientX: x, clientY: y } = event;
-                drag = {
-                    id: event.pointerId, startX: x, startY: y, lastX: x, lastY: y,
-                    moved: false, dx: 0, dy: 0,
-                    samples: [{ x, y, time: event.timeStamp }]
-                };
-                canvas.classList.add("dragging");
-
-                try {
-                    canvas.setPointerCapture(event.pointerId);
-                } catch {
-                    // Os eventos na janela também encerram o arrasto.
-                }
+                if (!canLaunch() || !event.isPrimary || event.button !== 0 || !hitDice(event)) return;
+                press = { id: event.pointerId, x: event.clientX, y: event.clientY };
             });
 
             canvas.addEventListener("pointermove", event => {
-                if (!drag && event.pointerType === "mouse") {
-                    canvas.classList.toggle("grabbable", canThrow() && hitDice(event));
+                if (press?.id === event.pointerId && movedDuringPress(event)) press = null;
+                if (event.pointerType === "mouse") {
+                    canvas.classList.toggle("pressable", canLaunch() && hitDice(event));
                 }
             });
 
-            canvas.addEventListener("pointerleave", () => canvas.classList.remove("grabbable"));
-            window.addEventListener("pointermove", event => {
-                if (drag?.id === event.pointerId) moveDrag(event);
+            canvas.addEventListener("pointerup", event => {
+                if (press?.id !== event.pointerId) return;
+                const clicked = !movedDuringPress(event) && hitDice(event);
+                press = null;
+                if (clicked) launch();
             });
 
-            window.addEventListener("pointerup", event => {
-                if (drag?.id !== event.pointerId) return;
-                moveDrag(event);
-                const gesture = drag.moved ? drag : null;
-                stopDrag();
-                launch(gesture, event.timeStamp);
+            canvas.addEventListener("pointercancel", () => { press = null; });
+            canvas.addEventListener("pointerleave", () => {
+                press = null;
+                canvas.classList.remove("pressable");
             });
-
-            function cancelPointer(event) {
-                if (drag?.id === event.pointerId) stopDrag();
-            }
 
             canvas.addEventListener("keydown", event => {
                 if (event.key !== "Enter" && event.key !== " ") return;
@@ -913,19 +928,16 @@
                 if (event.detail === 0 && !event.pointerType) launch();
             });
 
-            window.addEventListener("pointercancel", cancelPointer);
-            canvas.addEventListener("lostpointercapture", cancelPointer);
-            window.addEventListener("blur", stopDrag);
+            window.addEventListener("blur", () => { press = null; });
             window.addEventListener("resize", resize);
             if (typeof ResizeObserver === "function") new ResizeObserver(resize).observe(arena);
 
             document.addEventListener("visibilitychange", () => {
                 lastTime = null;
-                if (document.hidden) stopDrag();
-                else queueFrame();
+                press = null;
+                if (!document.hidden) queueFrame();
             });
 
-            skip?.addEventListener("click", stopDrag);
             welcome?.addEventListener("close", () => {
                 lastTime = null;
                 queueFrame();
@@ -937,17 +949,16 @@
                 if (frame !== null) cancelAnimationFrame(frame);
                 frame = null;
                 lastTime = null;
-                stopDrag();
+                press = null;
                 syncControl();
                 setSceneStatus("Recuperando a cena 3D…");
             });
 
             canvas.addEventListener("webglcontextrestored", () => {
                 contextReady = true;
-                width = 0;
-                height = 0;
                 syncControl();
                 setSceneStatus();
+                renderer.setDrawingBufferSize(width, height, renderer.getPixelRatio());
                 resize();
             });
 
@@ -978,7 +989,7 @@
             const pipRadius = 0.118;
             const pips = new THREE.InstancedMesh(
                 new THREE.CircleGeometry(pipRadius, 24),
-                new THREE.MeshStandardMaterial({ color: 0xf3f8ff, roughness: 0.32 }),
+                new THREE.MeshStandardMaterial({ color: 0xffedc6, roughness: 0.32 }),
                 21
             );
             const stamp = new THREE.Object3D();
@@ -1013,6 +1024,7 @@
 
         setSceneStatus("Carregando o dado 3D…");
         void startScene();
+        paintLogo();
         startPattern();
     </script>
 </body>
