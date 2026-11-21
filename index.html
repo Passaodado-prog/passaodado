@@ -1,3 +1,6 @@
+Aqui está o **`index.html` completo**. Use **Copiar código** no bloco abaixo e substitua todo o conteúdo do `index.html` na branch `main`. Esta é a versão com a transição dos dados vermelhos e a vitrine de jogos.
+
+```html
 <!doctype html>
 <html lang="pt-BR">
 <head>
@@ -180,73 +183,259 @@
             white-space: nowrap;
         }
 
-        .welcome {
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            max-width: none;
-            max-height: none;
-            margin: 0;
-            padding: clamp(18px, 5vw, 48px);
-            overflow: auto;
-            border: 0;
-            color: var(--ink);
-            background: radial-gradient(ellipse at center, #fff8ec, #f4d6a3);
+        .experience[hidden],
+        .catalog[hidden],
+        .dice-curtain[hidden] { display: none; }
+
+        .scene-browse {
+            position: absolute;
+            top: calc(50% + 24px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .catalog {
+            position: relative;
             text-align: center;
         }
 
-        .welcome[open] { display: grid; }
-
-        .welcome-content {
-            width: min(100%, 580px);
-            margin: auto;
+        .catalog-intro {
+            display: grid;
+            justify-items: center;
+            grid-template-rows: auto auto minmax(min-content, 1fr) auto;
+            min-height: 100vh;
+            min-height: 100svh;
+            padding: clamp(20px, 4vh, 44px) 16px clamp(22px, 5vh, 52px);
         }
 
-        .welcome h2 {
-            margin: 0 0 clamp(12px, 3vh, 22px);
+        .catalog .brand-logo {
+            width: clamp(145px, 19vw, 218px);
+            margin-bottom: clamp(19px, 4vh, 36px);
+        }
+
+        .catalog h1,
+        .game-information h2 {
+            margin: 0;
             color: var(--red);
-            font-size: clamp(2rem, 7vw, 4.05rem);
-            line-height: 1.09;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            text-wrap: balance;
         }
 
-        .welcome-copy {
-            margin: 0 auto clamp(16px, 3.5vh, 28px);
-            font-size: clamp(0.95rem, 2.4vw, 1.0625rem);
-            line-height: 1.55;
+        .catalog h1 {
+            outline: none;
+            font-size: clamp(2.05rem, 5.4vw, 4.35rem);
+            line-height: 1.02;
         }
 
-        .cta {
-            padding: 14px 23px;
+        .game-shelf {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            align-self: center;
+            align-items: end;
+            gap: clamp(10px, 1.8vw, 23px);
+            width: min(100%, 1110px);
+            margin: 0;
+            padding: clamp(37px, 7vh, 70px) 20px 35px;
+            list-style: none;
+        }
+
+        .game-card {
+            position: relative;
+            min-width: 0;
+            --tilt: 0deg;
+            --lift: 0px;
+        }
+
+        .game-card:first-child { --tilt: -7deg; --lift: 13px; }
+        .game-card:nth-child(2) { --tilt: -3deg; --lift: 2px; }
+        .game-card:nth-child(3) { --lift: -9px; }
+        .game-card:nth-child(4) { --tilt: 3deg; --lift: 2px; }
+        .game-card:last-child { --tilt: 7deg; --lift: 13px; }
+
+        .catalog-entering .game-card {
+            animation: raise-card 660ms cubic-bezier(.17,.83,.32,1)
+                calc(125ms + var(--order) * 85ms) both;
+        }
+
+        @keyframes raise-card {
+            from { opacity: 0; transform: translateY(66px) scale(.92); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .game-link {
+            display: block;
+            overflow: hidden;
+            border: 1px solid #fff8e561;
+            border-radius: 18px;
+            background: #681a25;
+            color: var(--cream);
+            box-shadow: 0 12px 26px #5d291e37;
+            text-align: left;
+            text-decoration: none;
+            transform: translateY(var(--lift)) rotate(var(--tilt));
+            transition: transform 260ms ease, box-shadow 260ms ease, filter 260ms ease;
+        }
+
+        .game-link canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 400 / 344;
+        }
+
+        .game-name {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 5px;
+            padding: 13px 11px 15px;
+            font-size: clamp(0.86rem, 1.5vw, 1.16rem);
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .game-arrow { color: #ffd589; }
+
+        .game-card:focus-within { z-index: 2; }
+        .game-link:focus-visible {
+            outline: 3px solid var(--red);
+            outline-offset: 4px;
+            transform: translateY(-18px) rotate(0deg) scale(1.10);
+        }
+
+        @media (hover: hover) {
+            .game-card:hover { z-index: 3; }
+            .game-card:hover .game-link {
+                box-shadow: 0 22px 42px #531b174b;
+                transform: translateY(-21px) rotate(0deg) scale(1.13);
+            }
+            .game-shelf:has(.game-card:hover) .game-card:not(:hover) .game-link {
+                filter: saturate(.77);
+            }
+        }
+
+        .catalog-more,
+        .back {
+            padding: 9px 13px;
             border: 0;
             border-radius: 8px;
-            background: var(--red);
-            color: var(--cream);
-            font-size: 0.9rem;
-            font-weight: 900;
-            letter-spacing: 0.07em;
-            cursor: pointer;
-        }
-
-        .cta:hover { background: #9d0825; }
-
-        .library-status {
-            margin: 12px 0 0;
-            font-size: 0.9rem;
-        }
-
-        .library-status:empty { margin: 0; }
-
-        .back {
-            margin-top: 8px;
-            padding: 8px;
-            border: 0;
-            border-radius: 4px;
             background: transparent;
-            color: #792a16;
-            font-size: 0.85rem;
+            color: #81291e;
+            font-size: 0.91rem;
+            font-weight: 700;
             text-decoration: underline;
-            text-underline-offset: 3px;
+            text-underline-offset: 4px;
             cursor: pointer;
+        }
+
+        .catalog-more:hover,
+        .back:hover { color: var(--red); }
+
+        .game-information {
+            width: min(960px, calc(100% - 36px));
+            margin: 0 auto;
+            padding: clamp(38px, 7vw, 72px) 0 60px;
+            border-top: 1px solid #c9874b64;
+            scroll-margin-top: 16px;
+        }
+
+        .game-information h2 {
+            font-size: clamp(1.9rem, 4.25vw, 3.4rem);
+        }
+
+        .game-details {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 13px;
+            margin: clamp(21px, 4vw, 36px) 0 26px;
+            text-align: left;
+        }
+
+        .game-detail {
+            scroll-margin-top: 24px;
+            padding: clamp(16px, 2.9vw, 26px);
+            border: 1px solid #d2a779;
+            border-radius: 15px;
+            background: #fff5e3e6;
+        }
+
+        .game-detail:target,
+        .game-detail:focus-visible {
+            outline: 2px solid var(--red);
+            outline-offset: 3px;
+        }
+
+        .game-detail h3 { color: var(--red); margin: 0 0 7px; }
+        .game-detail p { margin: 0; line-height: 1.52; }
+
+        .dice-curtain {
+            position: fixed;
+            z-index: 20;
+            inset: 0;
+            overflow: hidden;
+            background: radial-gradient(ellipse at 50% 34%, #a92a3b 0%, #671a24 56%, #3b180f 100%);
+        }
+
+        body.is-changing { overflow: hidden; }
+
+        .die-slot {
+            position: absolute;
+            width: var(--side);
+            height: var(--side);
+            perspective: calc(var(--side) * 5);
+            transform: translate(-50%, -50%);
+        }
+
+        .die-flight,
+        .die-cube {
+            position: absolute;
+            inset: 0;
+            transform-style: preserve-3d;
+        }
+
+        .die-face {
+            position: absolute;
+            inset: 0;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            backface-visibility: hidden;
+        }
+
+        @media (max-width: 760px) {
+            .catalog-intro {
+                min-height: min(100svh, 700px);
+                padding-top: clamp(24px, 6vh, 48px);
+            }
+
+            .game-shelf {
+                grid-template-columns: none;
+                grid-auto-flow: column;
+                grid-auto-columns: min(49vw, 213px);
+                gap: 13px;
+                overflow-x: auto;
+                padding: 28px 13px 23px;
+                scroll-snap-type: x proximity;
+                scroll-padding-inline: 13px;
+            }
+
+            .game-shelf .game-card {
+                --tilt: 0deg;
+                --lift: 0px;
+                scroll-snap-align: start;
+            }
+
+            .game-link { border-radius: 14px; }
+            .game-link:focus-visible { transform: translateY(-7px) scale(1.035); }
+        }
+
+        @media (max-width: 525px) {
+            .game-details { grid-template-columns: minmax(0, 1fr); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .catalog-entering .game-card { animation: none; }
+            .game-link { transition: none; }
         }
 
         @media (max-width: 600px) {
@@ -318,6 +507,7 @@
             <canvas class="dice-canvas" id="dice-canvas" role="button" tabindex="0"
                 aria-label="Girar o dado" aria-describedby="hint" aria-disabled="true" hidden></canvas>
             <p class="scene-status" id="scene-status" role="status" hidden></p>
+            <button class="catalog-more scene-browse" id="browse-games" type="button" hidden>Ver os jogos</button>
             <noscript><p class="scene-status">Ative o JavaScript para girar o dado.</p></noscript>
         </div>
 
@@ -327,17 +517,23 @@
         </footer>
     </main>
 
-    <dialog class="welcome" id="welcome" aria-labelledby="welcome-title" aria-describedby="welcome-copy">
-        <div class="welcome-content">
-            <h2 id="welcome-title">MENOS TELAS.<br>MAIS MOMENTOS.</h2>
-            <p class="welcome-copy" id="welcome-copy">Reúna quem você gosta, descubra jogos incríveis e transforme encontros comuns em experiências que ficam na memória.</p>
-            <button class="cta" id="library" type="button">EXPLORAR JOGOS</button>
-            <p class="library-status" id="library-status" role="status"></p>
-            <form method="dialog">
-                <button class="back" type="submit">Voltar ao dado</button>
-            </form>
-        </div>
-    </dialog>
+    <main class="catalog" id="catalog" hidden>
+        <section class="catalog-intro" aria-labelledby="catalog-title">
+            <canvas class="brand-logo" id="catalog-logo" width="1278" height="422"
+                role="img" aria-label="Passa o Dado">Passa o Dado</canvas>
+            <h1 id="catalog-title" tabindex="-1">Escolha seu jogo e se divirta!</h1>
+            <ul class="game-shelf" id="game-shelf" aria-label="Vitrine de jogos"></ul>
+            <a class="catalog-more" href="#informacoes-jogos">Ver detalhes dos jogos <span aria-hidden="true">↓</span></a>
+        </section>
+
+        <section class="game-information" id="informacoes-jogos" aria-labelledby="information-title">
+            <h2 id="information-title">Conheça os jogos</h2>
+            <div class="game-details" id="game-details"></div>
+            <button class="back" id="back-to-dice" type="button">Voltar ao dado</button>
+        </section>
+    </main>
+
+    <div class="dice-curtain" id="dice-curtain" aria-hidden="true" hidden></div>
 
     <script type="module">
         const experience = document.getElementById("experience");
@@ -345,31 +541,22 @@
         const canvas = document.getElementById("dice-canvas");
         const sceneStatus = document.getElementById("scene-status");
         const result = document.getElementById("roll-result");
-        const welcome = document.getElementById("welcome");
-        const library = document.getElementById("library");
-        const libraryStatus = document.getElementById("library-status");
+        const catalog = document.getElementById("catalog");
+        const catalogTitle = document.getElementById("catalog-title");
+        const curtain = document.getElementById("dice-curtain");
+        const browse = document.getElementById("browse-games");
+        const originalTitle = document.title;
+        let changingPage = false;
+        let refreshDice = null;
 
-        let welcomeShown = false;
-
-        function showWelcome() {
-            if (!welcome?.isConnected || welcome.open || typeof welcome.showModal !== "function") return;
-            welcome.showModal();
-            welcomeShown = true;
-        }
-
-        function setSceneStatus(message = "") {
+        function setSceneStatus(message = "", offerCatalog = false) {
             if (canvas instanceof HTMLCanvasElement) canvas.hidden = Boolean(message);
             if (sceneStatus) {
                 sceneStatus.textContent = message;
                 sceneStatus.hidden = !message;
             }
+            if (browse) browse.hidden = !offerCatalog;
         }
-
-        library?.addEventListener("click", () => {
-            if (libraryStatus) {
-                libraryStatus.textContent = "A biblioteca de jogos ainda será conectada.";
-            }
-        });
 
         function paintLogo() {
             const logo = document.getElementById("brand-logo");
@@ -408,6 +595,10 @@
             fill(letterA, red, 172, 245);
             fill("M970 255H1028C1081 255 1116 288 1116 337C1116 389 1083 420 1028 420H970ZM1029 302V373C1046 372 1056 359 1056 337C1056 316 1046 303 1029 302Z", red);
             fill("M1200 252C1245 252 1278 287 1278 337C1278 388 1246 422 1200 422C1155 422 1124 388 1124 337C1124 287 1155 252 1200 252ZM1200 312C1189 312 1184 323 1184 337C1184 352 1189 362 1200 362C1212 362 1218 352 1218 337C1218 323 1212 312 1200 312Z", red);
+            const catalogLogo = document.getElementById("catalog-logo");
+            if (catalogLogo instanceof HTMLCanvasElement) {
+                catalogLogo.getContext("2d")?.drawImage(logo, 0, 0);
+            }
         }
 
         function startPattern() {
@@ -520,17 +711,446 @@
             });
         }
 
+        const games = [
+            { id: "domino", name: "Dominó", cover: "#b92a42", deep: "#731429", label: "#74162c",
+                about: "Encaixe peças com números iguais nas pontas da mesa. Cada jogada abre novas possibilidades para você e para o grupo." },
+            { id: "ludo", name: "Ludo", cover: "#d78a29", deep: "#994c20", label: "#773c1e",
+                about: "Lance o dado, avance com seus peões e tente levar todos até a chegada. Bom para quem gosta de partidas com reviravoltas." },
+            { id: "jogo-da-velha", name: "Jogo da Velha", cover: "#d4414c", deep: "#971832", label: "#8c1730",
+                about: "Em dupla, alterne as jogadas e tente alinhar três marcas. As partidas são rápidas e as regras cabem em poucos minutos." },
+            { id: "damas", name: "Damas", cover: "#ad5837", deep: "#643322", label: "#64311f",
+                about: "Mova suas peças na diagonal, prepare capturas e chegue ao outro lado do tabuleiro para coroar uma dama." },
+            { id: "xadrez", name: "Xadrez", cover: "#8d2740", deep: "#491a26", label: "#521926",
+                about: "Cada peça tem seu próprio movimento. Controle o tabuleiro e combine suas jogadas para chegar ao xeque-mate." }
+        ];
+
+        const dotPositions = [
+            [[.50, .50]],
+            [[.25, .25], [.75, .75]],
+            [[.25, .25], [.50, .50], [.75, .75]],
+            [[.25, .25], [.75, .25], [.25, .75], [.75, .75]],
+            [[.25, .25], [.75, .25], [.50, .50], [.25, .75], [.75, .75]],
+            [[.25, .22], [.75, .22], [.25, .50], [.75, .50], [.25, .78], [.75, .78]]
+        ];
+
+        function drawCover(canvas, game) {
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            const cream = "#ffe7ba";
+            const gold = "#f7b646";
+            const ruby = "#c51e3f";
+            const earth = "#673321";
+
+            function dot(x, y, radius, color) {
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = color;
+                ctx.fill();
+            }
+
+            function tile(x, y, width, height, radius, color) {
+                ctx.beginPath();
+                ctx.roundRect(x, y, width, height, radius);
+                ctx.fillStyle = color;
+                ctx.fill();
+            }
+
+            function shadow() {
+                ctx.shadowColor = "#3410198c";
+                ctx.shadowBlur = 25;
+                ctx.shadowOffsetY = 15;
+            }
+
+            function gloss(top, bottom, height) {
+                const tones = ctx.createLinearGradient(0, -height / 2, 0, height / 2);
+                tones.addColorStop(0, top);
+                tones.addColorStop(1, bottom);
+                return tones;
+            }
+
+            function domino(x, y, angle, bright, dark, pip, first, second) {
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(angle);
+                shadow();
+                tile(-40, -73, 80, 152, 11, dark);
+                ctx.shadowColor = "transparent";
+                tile(-40, -81, 80, 152, 11, gloss(bright, dark, 173));
+                tile(-28, -6, 56, 2.5, 1, pip);
+                for (const [index, value] of [first, second].entries()) {
+                    for (const [px, py] of dotPositions[value - 1]) {
+                        dot(-33 + px * 66, -79 + index * 75 + py * 70, 5.6, pip);
+                    }
+                }
+                ctx.restore();
+            }
+
+            function board(angle, face, edge, draw) {
+                ctx.save();
+                ctx.translate(199, 174);
+                ctx.rotate(angle);
+                ctx.scale(1, .84);
+                shadow();
+                tile(-121, -113, 242, 242, 16, edge);
+                ctx.shadowColor = "transparent";
+                tile(-121, -124, 242, 242, 16, face);
+                draw();
+                ctx.restore();
+            }
+
+            function piece(path, x, y, scale, bright, dark) {
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.scale(scale, scale);
+                shadow();
+                ctx.translate(0, 7);
+                ctx.fillStyle = dark;
+                const shape = new Path2D(path);
+                ctx.fill(shape);
+                ctx.translate(0, -7);
+                ctx.shadowColor = "transparent";
+                ctx.fillStyle = gloss(bright, dark, 136);
+                ctx.fill(shape);
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#ffdfa870";
+                ctx.stroke(shape);
+                ctx.restore();
+            }
+
+            const backdrop = ctx.createLinearGradient(20, 4, 375, 344);
+            backdrop.addColorStop(0, game.cover);
+            backdrop.addColorStop(1, game.deep);
+            ctx.fillStyle = backdrop;
+            ctx.fillRect(0, 0, 400, 344);
+
+            const light = ctx.createRadialGradient(184, 127, 8, 185, 138, 213);
+            light.addColorStop(0, "#ffe6ac51");
+            light.addColorStop(1, "#ffc36400");
+            ctx.fillStyle = light;
+            ctx.fillRect(0, 0, 400, 344);
+            ctx.strokeStyle = "#ffedbf35";
+            ctx.lineWidth = 1;
+            for (const radius of [145, 166, 189]) {
+                ctx.beginPath();
+                ctx.arc(200, 168, radius, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            const pawn = "M0 -67a23 23 0 1 1-12 43c-2 21-13 38-30 45v23h84V21c-17-7-28-24-30-45A23 23 0 0 1 0-67Z";
+
+            if (game.id === "domino") {
+                domino(133, 151, .43, cream, "#d29856", "#682113", 5, 3);
+                domino(237, 169, -.27, "#f25866", "#a81334", cream, 4, 2);
+                domino(290, 199, .71, "#ffdf9b", "#d38a2d", "#6d271b", 2, 6);
+            }
+
+            if (game.id === "ludo") {
+                board(-.24, cream, "#a35a22", () => {
+                    const bases = [ruby, "#a35129", "#e3922a", "#825043"];
+                    for (const [index, color] of bases.entries()) {
+                        const left = index % 2 ? 35 : -105;
+                        const top = index > 1 ? 35 : -105;
+                        tile(left, top, 70, 70, 7, color);
+                        for (const dx of [24, 46]) for (const dy of [24, 46]) dot(left + dx, top + dy, 6.8, cream);
+                    }
+                    ctx.strokeStyle = "#bd895d";
+                    ctx.lineWidth = 1.5;
+                    for (let n = -100; n <= 100; n += 20) {
+                        ctx.strokeRect(-29, n - 9, 58, 18);
+                        ctx.strokeRect(n - 9, -29, 18, 58);
+                    }
+                    dot(0, 0, 24, ruby);
+                });
+                piece(pawn, 140, 202, .79, "#ffe8b5", "#c68735");
+                piece(pawn, 248, 192, .93, "#f65b67", "#9f1336");
+            }
+
+            if (game.id === "jogo-da-velha") {
+                board(.14, "#ffd589", "#93253b", () => {
+                    tile(-108, -111, 216, 216, 11, "#f4bc69");
+                    ctx.lineWidth = 6;
+                    ctx.lineCap = "round";
+                    ctx.strokeStyle = "#aa623f";
+                    ctx.beginPath();
+                    for (const a of [-36, 36]) {
+                        ctx.moveTo(a, -100); ctx.lineTo(a, 94);
+                        ctx.moveTo(-98, a); ctx.lineTo(98, a);
+                    }
+                    ctx.stroke();
+                    for (const [x, y, mark] of [[-71,-69,"x"],[0,-69,"o"],[0,2,"x"],[70,2,"o"],[70,69,"x"]]) {
+                        ctx.beginPath();
+                        ctx.lineWidth = 12;
+                        ctx.strokeStyle = mark === "x" ? "#981436" : "#fff0c9";
+                        if (mark === "x") {
+                            ctx.moveTo(x-15,y-15); ctx.lineTo(x+15,y+15);
+                            ctx.moveTo(x-15,y+15); ctx.lineTo(x+15,y-15);
+                        } else {
+                            ctx.arc(x,y,20,0,Math.PI*2);
+                        }
+                        ctx.stroke();
+                    }
+                });
+            }
+
+            if (game.id === "damas") {
+                board(-.27, "#e9aa65", "#64291e", () => {
+                    for (let i = 0; i < 8; i += 1) {
+                        for (let j = 0; j < 8; j += 1) {
+                            ctx.fillStyle = (i + j) % 2 ? "#713924" : "#ffdb9f";
+                            ctx.fillRect(-104 + 26 * i, -107 + 26 * j, 26, 26);
+                        }
+                    }
+                    const discs = [
+                        [-62, -56, ruby], [-8, -53, ruby], [43, -56, ruby], [71,-26,ruby],
+                        [-85,23,gold], [-33,23,gold], [20,23,gold], [45,50,gold], [-5,51,gold]
+                    ];
+                    for (const [x,y,color] of discs) {
+                        dot(x, y + 4, 11, "#432316");
+                        dot(x, y, 11.5, color);
+                        ctx.strokeStyle = "#fff1c98b";
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ctx.arc(x, y, 6.7, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                });
+            }
+
+            if (game.id === "xadrez") {
+                ctx.fillStyle = "#ffe3a32f";
+                ctx.beginPath();
+                ctx.ellipse(202, 255, 147, 41, 0, 0, Math.PI * 2);
+                ctx.fill();
+                const king = "M-7-79H7v14h15v14H7v14l35-12-13 36-5 23 13 18 11 7v18h-96V35l11-7 13-18-5-23-13-36L-7-37v-14h-15v-14h15Z";
+                const rook = "M-36-61h18v16h11v-16H7v16h11v-16h18v31L22-15l7 34 13 12v19h-84V31l13-12 7-34-14-15Z";
+                piece(pawn, 101, 224, .72, "#da553d", "#891133");
+                piece(rook, 277, 211, .89, "#f4bd65", "#b36b32");
+                piece(king, 182, 180, 1.18, "#fff3d3", "#cd8747");
+            }
+        }
+
+        function buildCatalog() {
+            const shelf = document.getElementById("game-shelf");
+            const details = document.getElementById("game-details");
+            if (!shelf || !details) return;
+
+            games.forEach((game, index) => {
+                const item = document.createElement("li");
+                item.className = "game-card";
+                item.style.setProperty("--order", index);
+                const link = document.createElement("a");
+                link.className = "game-link";
+                link.href = `#jogo-${game.id}`;
+                link.style.backgroundColor = game.label;
+                const cover = document.createElement("canvas");
+                cover.width = 400;
+                cover.height = 344;
+                cover.setAttribute("aria-hidden", "true");
+                const name = document.createElement("span");
+                name.className = "game-name";
+                name.textContent = game.name;
+                const arrow = document.createElement("span");
+                arrow.className = "game-arrow";
+                arrow.textContent = "↓";
+                arrow.setAttribute("aria-hidden", "true");
+                name.append(arrow);
+                link.append(cover, name);
+                item.append(link);
+                shelf.append(item);
+                drawCover(cover, game);
+
+                const detail = document.createElement("article");
+                detail.className = "game-detail";
+                detail.id = `jogo-${game.id}`;
+                detail.tabIndex = -1;
+                const heading = document.createElement("h3");
+                heading.textContent = game.name;
+                const body = document.createElement("p");
+                body.textContent = game.about;
+                detail.append(heading, body);
+                details.append(detail);
+            });
+        }
+
+        function makeCurtainFaces() {
+            const tones = ["#e24454", "#b41538", "#c92342", "#9c1a37", "#9a1536", "#d53047"];
+            const tile = document.createElement("canvas");
+            tile.width = 128;
+            tile.height = 128;
+            const ink = tile.getContext("2d");
+            if (!ink) return tones.map(tone => `linear-gradient(145deg, ${tone}, #671129)`);
+
+            return dotPositions.map((dots, face) => {
+                ink.clearRect(0, 0, 128, 128);
+                ink.save();
+                ink.beginPath();
+                ink.roundRect(1, 1, 126, 126, 13);
+                ink.clip();
+                const tint = ink.createLinearGradient(15, 0, 112, 128);
+                tint.addColorStop(0, "#f18a73");
+                tint.addColorStop(.16, tones[face]);
+                tint.addColorStop(1, "#681025");
+                ink.fillStyle = tint;
+                ink.fillRect(0, 0, 128, 128);
+                ink.lineWidth = 2.5;
+                ink.strokeStyle = "#ffca9486";
+                ink.stroke();
+                for (const [x, y] of dots) {
+                    ink.beginPath();
+                    ink.arc(x * 128, y * 128, 7, 0, Math.PI * 2);
+                    ink.fillStyle = "#ffefc9";
+                    ink.fill();
+                }
+                ink.restore();
+                return `url("${tile.toDataURL()}")`;
+            });
+        }
+
+        function fillCurtain() {
+            const columns = innerWidth < 640 ? 4 : 6;
+            const rows = innerWidth < 640 ? 6 : 4;
+            const cell = Math.min(innerWidth / columns, innerHeight / rows);
+            const angles = ["rotateY(0deg)", "rotateX(90deg)", "rotateY(90deg)",
+                "rotateY(-90deg)", "rotateX(-90deg)", "rotateY(180deg)"];
+            const faces = makeCurtainFaces();
+            const entries = [];
+
+            for (let index = 0; index < columns * rows; index += 1) {
+                const column = index % columns;
+                const row = Math.floor(index / columns);
+                const side = Math.max(27, cell * (0.48 + Math.random() * 0.53));
+                const slot = document.createElement("div");
+                slot.className = "die-slot";
+                slot.style.setProperty("--side", `${side}px`);
+                slot.style.left = `${(column + 0.5 + (Math.random() - 0.5) * 0.64) / columns * 100}%`;
+                slot.style.top = `${(row + 0.5 + (Math.random() - 0.5) * 0.64) / rows * 100}%`;
+
+                const flight = document.createElement("div");
+                flight.className = "die-flight";
+                const cube = document.createElement("div");
+                cube.className = "die-cube";
+                angles.forEach((angle, face) => {
+                    const surface = document.createElement("span");
+                    surface.className = "die-face";
+                    surface.style.transform = `${angle} translateZ(${side / 2}px)`;
+                    surface.style.backgroundImage = faces[face];
+                    cube.append(surface);
+                });
+                flight.append(cube);
+                slot.append(flight);
+                curtain.append(slot);
+
+                const direction = column < columns / 2 ? -1 : 1;
+                const vertical = row < rows / 2 ? -1 : 1;
+                const drift = direction * innerWidth * (0.16 + Math.random() * 0.34);
+                const rise = vertical * innerHeight * (0.29 + Math.random() * 0.33);
+                const delay = (row + column) * 6 + Math.random() * 45;
+                const motion = { duration: 540, delay, fill: "both" };
+                const arrival = flight.animate([
+                    { transform: `translate3d(${drift}px,${rise}px,0) scale(.24)`, opacity: 0 },
+                    { transform: "translate3d(0,0,0) scale(1)", opacity: 1 }
+                ], { ...motion, easing: "cubic-bezier(.19,.64,.39,1)" });
+
+                const angle = 360 * Math.random();
+                const resting = `rotateX(${angle + 260}deg) rotateY(181deg) rotateZ(-37deg)`;
+                cube.animate([
+                    { transform: `rotateX(${angle}deg) rotateY(-94deg) rotateZ(34deg)` },
+                    { transform: resting }
+                ], { ...motion, easing: "ease-out" });
+                entries.push({ arrival, flight, cube, drift, rise, angle, resting });
+            }
+
+            return entries;
+        }
+
+        function disperseCurtain(entries) {
+            const options = { duration: 660, delay: 165, fill: "both", easing: "ease-in" };
+            for (const { flight, cube, drift, rise, angle, resting } of entries) {
+                flight.animate([
+                    { transform: "translate3d(0,0,0) scale(1)", opacity: 1 },
+                    { transform: `translate3d(${drift * .74}px,${-rise}px,0) scale(.65)`, opacity: 0 }
+                ], options);
+                cube.animate([
+                    { transform: resting },
+                    { transform: `rotateX(${angle + 480}deg) rotateY(385deg) rotateZ(46deg)` }
+                ], options);
+            }
+        }
+
+        function showCatalog(enter) {
+            experience.hidden = true;
+            catalog.classList.toggle("catalog-entering", enter);
+            catalog.hidden = false;
+            document.title = "Passa o Dado | Escolha seu jogo";
+            window.scrollTo(0, 0);
+        }
+
+        async function openCatalog() {
+            if (!experience?.isConnected || !catalog?.hidden || changingPage) return;
+            changingPage = true;
+            experience.inert = true;
+            catalog.inert = true;
+
+            try {
+                const animate = curtain && typeof curtain.animate === "function"
+                    && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+                if (animate) {
+                    document.body.classList.add("is-changing");
+                    curtain.hidden = false;
+                    const entries = fillCurtain();
+                    const veil = curtain.animate([{ opacity: 0 }, { opacity: 1 }],
+                        { duration: 620, fill: "both", easing: "ease-out" });
+                    await Promise.all([veil.finished, ...entries.map(({ arrival }) => arrival.finished)]);
+                    showCatalog(true);
+                    disperseCurtain(entries);
+                    await curtain.animate([{ opacity: 1 }, { opacity: 0 }],
+                        { duration: 660, delay: 165, fill: "both", easing: "ease-in-out" }).finished;
+                } else {
+                    showCatalog(false);
+                }
+            } catch {
+                if (catalog.hidden) showCatalog(false);
+            } finally {
+                if (curtain && !curtain.hidden) {
+                    curtain.hidden = true;
+                    curtain.getAnimations?.({ subtree: true }).forEach(animation => animation.cancel());
+                    curtain.replaceChildren();
+                }
+                document.body.classList.remove("is-changing");
+                catalog.inert = false;
+                changingPage = false;
+                catalogTitle?.focus({ preventScroll: true });
+            }
+        }
+
+        browse?.addEventListener("click", openCatalog);
+        document.getElementById("back-to-dice")?.addEventListener("click", () => {
+            if (!catalog || !experience || changingPage) return;
+            catalog.hidden = true;
+            catalog.classList.remove("catalog-entering");
+            experience.hidden = false;
+            experience.inert = false;
+            if (catalog.contains(document.getElementById(location.hash.slice(1)))) {
+                history.replaceState(null, "", location.pathname + location.search);
+            }
+            document.title = originalTitle;
+            window.scrollTo(0, 0);
+            refreshDice?.();
+            (canvas?.hidden ? browse : canvas)?.focus({ preventScroll: true });
+        });
+
         async function startScene() {
             if (!experience?.isConnected || !arena?.isConnected
                 || !(canvas instanceof HTMLCanvasElement) || !arena.contains(canvas)) {
-                setSceneStatus("O dado 3D está indisponível.");
+                setSceneStatus("O dado 3D está indisponível.", true);
                 return;
             }
 
             try {
                 const context = canvas.getContext("webgl2", { alpha: true, antialias: true });
                 if (!context) {
-                    setSceneStatus("O dado 3D está indisponível neste navegador.");
+                    setSceneStatus("O dado 3D está indisponível neste navegador.", true);
                     return;
                 }
 
@@ -540,13 +1160,13 @@
                 ]);
 
                 if (!experience.isConnected || !arena.isConnected || !canvas.isConnected || !arena.contains(canvas)) {
-                    setSceneStatus("O dado 3D está indisponível.");
+                    setSceneStatus("O dado 3D está indisponível.", true);
                     return;
                 }
 
                 createScene(THREE, RoundedBoxGeometry, context);
             } catch {
-                setSceneStatus("Não foi possível carregar o dado 3D.");
+                setSceneStatus("Não foi possível carregar o dado 3D.", true);
             }
         }
 
@@ -759,7 +1379,7 @@
                     if (roll.elapsed >= 2) {
                         roll = null;
                         syncControl();
-                        if (!welcomeShown) showWelcome();
+                        void openCatalog();
                     }
                     return;
                 }
@@ -794,7 +1414,7 @@
             }
 
             function canRender() {
-                return contextReady && width > 0 && height > 0 && !document.hidden && !welcome?.open
+                return contextReady && width > 0 && height > 0 && !document.hidden && !changingPage && !experience.hidden
                     && experience.isConnected && arena.isConnected && canvas.isConnected;
             }
 
@@ -843,13 +1463,18 @@
                     syncControl();
                 }
 
+                if (!canRender()) {
+                    lastTime = null;
+                    return;
+                }
+
                 try {
                     updateLighting(dt);
                     renderer.render(scene, camera);
                 } catch {
                     contextReady = false;
                     syncControl();
-                    setSceneStatus("O dado 3D está indisponível.");
+                    setSceneStatus("O dado 3D está indisponível.", true);
                 }
 
                 if (roll) queueFrame();
@@ -994,11 +1619,6 @@
                 if (!document.hidden) queueFrame();
             });
 
-            welcome?.addEventListener("close", () => {
-                lastTime = null;
-                queueFrame();
-            });
-
             canvas.addEventListener("webglcontextlost", event => {
                 event.preventDefault();
                 contextReady = false;
@@ -1018,8 +1638,12 @@
                 resize();
             });
 
-            resize();
-            syncControl();
+            refreshDice = () => {
+                lastTime = null;
+                resize();
+                syncControl();
+            };
+            refreshDice();
             setSceneStatus(contextReady ? "" : "Recuperando a cena 3D…");
         }
 
@@ -1082,6 +1706,14 @@
         void startScene();
         paintLogo();
         startPattern();
+        buildCatalog();
+
+        const linkedSection = document.getElementById(location.hash.slice(1));
+        if (experience && linkedSection && catalog?.contains(linkedSection)) {
+            showCatalog(false);
+            requestAnimationFrame(() => linkedSection.scrollIntoView());
+        }
     </script>
 </body>
 </html>
+```
