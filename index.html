@@ -1,975 +1,778 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#101522">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101522">
+    <title>Passa o Dado | Menos telas. Mais momentos.</title>
+    <link rel="icon" href="data:,">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-<title>Passa o Dado | Menos telas. Mais momentos.</title>
+        body {
+            margin: 0;
+            color: #fff;
+            background: radial-gradient(ellipse at 50% 49%, #263b60, #131c30 50%, #080d17);
+            background-attachment: fixed;
+            font-family: Arial, Helvetica, sans-serif;
+        }
 
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        button {
+            font: inherit;
+        }
 
-body {
-    width: 100%;
-    height: 100vh;
-    height: 100dvh;
-    overflow: hidden;
-    background: radial-gradient(
-        ellipse at center,
-        #263b60 0%,
-        #131c30 48%,
-        #080d17 100%
-    );
-    color: white;
-    font-family: Arial, Helvetica, sans-serif;
-}
+        button:focus-visible {
+            outline: 2px solid #b1deff;
+            outline-offset: 4px;
+        }
 
-#scene {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    cursor: grab;
-    touch-action: none;
-}
+        .experience {
+            display: grid;
+            grid-template-rows: auto minmax(112px, 1fr) auto;
+            height: 100vh;
+            height: 100dvh;
+            min-height: 320px;
+            text-align: center;
+        }
 
-#scene.dragging {
-    cursor: grabbing;
-}
+        .hero {
+            grid-row: 1;
+            padding: clamp(18px, 6vh, 60px) 18px 10px;
+        }
 
-#scene canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
+        .brand {
+            margin: 0 0 clamp(12px, 3.6vh, 32px);
+            font-size: 0.95rem;
+            font-weight: 900;
+            letter-spacing: 0.36em;
+        }
 
-#header,
-#footer {
-    position: fixed;
-    width: 100%;
-    text-align: center;
-    z-index: 2;
-    pointer-events: none;
-}
+        .brand span {
+            color: #58baff;
+        }
 
-#header {
-    top: 6%;
-    padding: 0 20px;
-}
+        .hero h1 {
+            margin: 0 auto;
+            max-width: 760px;
+            font-size: clamp(1.35rem, 4.6vw, 2.375rem);
+            line-height: 1.18;
+            text-wrap: balance;
+            text-shadow: 0 3px 15px #0008;
+        }
 
-.logo {
-    font-size: 16px;
-    font-weight: 900;
-    letter-spacing: 6px;
-    margin-bottom: 32px;
-}
+        .hero-copy {
+            max-width: 36rem;
+            margin: clamp(8px, 1.8vh, 15px) auto 0;
+            color: #c4d5ed;
+            font-size: clamp(0.8rem, 2vw, 0.95rem);
+            line-height: 1.45;
+        }
 
-.logo span {
-    color: #36aaff;
-}
+        .arena {
+            position: relative;
+            grid-row: 2;
+            min-width: 0;
+            overflow: hidden;
+        }
 
-h1 {
-    font-size: clamp(23px, 4vw, 38px);
-    line-height: 1.25;
-    max-width: 750px;
-    margin: auto;
-    text-shadow: 0 3px 15px #0008;
-}
+        .arena canvas {
+            position: absolute;
+            inset: 0;
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+            touch-action: none;
+        }
 
-#header p {
-    color: #b8cce8;
-    font-size: 14px;
-    letter-spacing: 1px;
-    margin-top: 15px;
-}
+        .arena canvas[hidden] {
+            display: none;
+        }
 
-#footer {
-    bottom: 7%;
-    padding: 0 15px;
-}
+        .arena canvas.dragging {
+            cursor: grabbing;
+        }
 
-#instruction {
-    color: #69baff;
-    font-size: 13px;
-    font-weight: bold;
-    letter-spacing: 3px;
-}
+        .scene-status {
+            position: absolute;
+            inset: 50% 18px auto;
+            margin: 0;
+            color: #c4d5ed;
+            transform: translateY(-50%);
+            font-size: 0.95rem;
+        }
 
-#hint {
-    color: #9caec6;
-    font-size: 12px;
-    margin-top: 12px;
-}
+        .controls {
+            position: relative;
+            grid-row: 3;
+            padding: 4px 16px clamp(45px, 6.8vh, 68px);
+        }
 
-#result {
-    position: fixed;
-    z-index: 3;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 25px;
-    background: radial-gradient(
-        circle,
-        #263b60ee,
-        #080d17f5
-    );
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity .7s ease, visibility .7s;
-    pointer-events: none;
-}
+        .roll {
+            padding: 8px 13px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            background: transparent;
+            color: #80c8ff;
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 0.19em;
+            cursor: pointer;
+        }
 
-#result.show {
-    opacity: 1;
-    visibility: visible;
-}
+        .roll:hover:not(:disabled) {
+            border-color: #66bdff55;
+            background: #66bdff14;
+        }
 
-#result h2 {
-    font-size: clamp(35px, 7vw, 65px);
-    line-height: 1.15;
-    color: #fff;
-    text-shadow: 0 4px 25px #000;
-    margin-bottom: 22px;
-}
+        .roll:disabled {
+            cursor: default;
+            opacity: 0.65;
+        }
 
-#result p {
-    max-width: 550px;
-    color: #dce8f8;
-    font-size: 17px;
-    line-height: 1.7;
-    margin-bottom: 28px;
-}
+        .hint {
+            margin: 2px 0 0;
+            color: #b0c2dd;
+            font-size: 0.8rem;
+            line-height: 1.45;
+        }
 
-.cta {
-    pointer-events: auto;
-    border: none;
-    border-radius: 8px;
-    background: #36aaff;
-    color: #071322;
-    padding: 17px 28px;
-    font-weight: 900;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: .25s;
-}
+        .skip,
+        .back {
+            padding: 8px;
+            border: 0;
+            border-radius: 4px;
+            background: transparent;
+            color: #c4d5ed;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            cursor: pointer;
+        }
 
-.cta:hover {
-    background: #82ccff;
-    transform: translateY(-3px);
-}
+        .skip:hover,
+        .back:hover {
+            color: #fff;
+        }
 
-.skip {
-    position: fixed;
-    z-index: 4;
-    right: 22px;
-    bottom: 20px;
-    border: none;
-    background: transparent;
-    color: #9caec6;
-    font-size: 12px;
-    cursor: pointer;
-    text-decoration: underline;
-}
+        .skip {
+            position: absolute;
+            right: max(12px, env(safe-area-inset-right));
+            bottom: max(9px, env(safe-area-inset-bottom));
+            font-size: 0.8rem;
+        }
 
-@media(max-width: 600px) {
-    #header {
-        top: 7%;
-    }
+        .welcome {
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            max-height: none;
+            margin: 0;
+            padding: clamp(18px, 5vw, 48px);
+            overflow: auto;
+            border: 0;
+            color: #fff;
+            background: radial-gradient(ellipse at center, #243957, #080d17 82%);
+            text-align: center;
+        }
 
-    .logo {
-        margin-bottom: 25px;
-    }
+        .welcome[open] {
+            display: grid;
+        }
 
-    h1 {
-        font-size: 24px;
-    }
+        .welcome-content {
+            width: min(100%, 580px);
+            margin: auto;
+        }
 
-    #header p {
-        font-size: 12px;
-    }
+        .welcome h2 {
+            margin: 0 0 clamp(12px, 3vh, 22px);
+            font-size: clamp(2rem, 7vw, 4.05rem);
+            line-height: 1.09;
+            text-shadow: 0 4px 25px #0009;
+        }
 
-    #footer {
-        bottom: 9%;
-    }
-}
+        .welcome-copy {
+            margin: 0 auto clamp(16px, 3.5vh, 28px);
+            color: #dce8f8;
+            font-size: clamp(0.95rem, 2.4vw, 1.0625rem);
+            line-height: 1.55;
+        }
 
-@media(prefers-reduced-motion: reduce) {
-    #result {
-        transition: none;
-    }
-}
-</style>
+        .cta {
+            display: inline-block;
+            padding: 14px 23px;
+            border: 0;
+            border-radius: 8px;
+            background: #54b9ff;
+            color: #071322;
+            font-size: 0.9rem;
+            font-weight: 900;
+            letter-spacing: 0.07em;
+            cursor: pointer;
+        }
 
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
-  }
-}
-</script>
+        .cta:hover {
+            background: #89d0ff;
+        }
+
+        .library-status {
+            margin: 12px 0 0;
+            color: #c4d5ed;
+            font-size: 0.9rem;
+        }
+
+        .library-status:empty {
+            margin: 0;
+        }
+
+        .back {
+            margin-top: 8px;
+            font-size: 0.85rem;
+        }
+
+        @media (max-height: 500px) {
+            .hero {
+                padding-top: 12px;
+                padding-bottom: 4px;
+            }
+
+            .brand {
+                margin-bottom: 8px;
+                font-size: 0.78rem;
+            }
+
+            .hero h1 {
+                font-size: clamp(1.08rem, 4vw, 1.75rem);
+            }
+
+            .hero-copy {
+                margin-top: 6px;
+            }
+
+            .controls {
+                padding-bottom: max(34px, env(safe-area-inset-bottom));
+            }
+
+            .skip {
+                bottom: max(3px, env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+            }
+        }
+    </script>
 </head>
-
 <body>
-
-<header id="header">
-
-    <div class="logo">
-        PASSA <span>O</span> DADO
-    </div>
-
-    <h1>
-        TODA GRANDE HISTÓRIA<br>
-        COMEÇA COM UM PRIMEIRO LANCE.
-    </h1>
-
-    <p>
-        Gire o dado e descubra o que preparamos para você.
-    </p>
-
-</header>
-
-<div id="scene"></div>
-
-<footer id="footer">
-
-    <div id="instruction">
-        CLIQUE E ROLE O DADO
-    </div>
-
-    <div id="hint">
-        Ou arraste com o mouse e solte para lançá-lo.
-    </div>
-
-</footer>
-
-<button class="skip" onclick="revealSite()">
-    Pular animação
-</button>
-
-<section id="result">
-
-    <h2>
-        MENOS TELAS.<br>
-        MAIS MOMENTOS.
-    </h2>
-
-    <p>
-        Reúna quem você gosta, descubra jogos incríveis
-        e transforme encontros comuns em experiências
-        que ficam na memória.
-    </p>
-
-    <button class="cta" onclick="openLibrary()">
-        EXPLORAR JOGOS
-    </button>
-
-</section>
-
-<script type="module">
-
-import * as THREE from "three";
-
-import {
-    RoundedBoxGeometry
-} from "three/addons/geometries/RoundedBoxGeometry.js";
-
-const container = document.getElementById("scene");
-const instruction = document.getElementById("instruction");
-const result = document.getElementById("result");
-
-const scene = new THREE.Scene();
-
-const camera = new THREE.OrthographicCamera(
-    -window.innerWidth / 2,
-    window.innerWidth / 2,
-    window.innerHeight / 2,
-    -window.innerHeight / 2,
-    0.1,
-    2000
-);
-
-camera.position.z = 700;
-
-const renderer = new THREE.WebGLRenderer({
-    alpha: true,
-    antialias: true
-});
-
-renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio, 2)
-);
-
-renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
-);
-
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.25;
-
-container.appendChild(renderer.domElement);
-
-
-// =====================================
-// ILUMINAÇÃO
-// =====================================
-
-scene.add(
-    new THREE.AmbientLight(0xffffff, 1.3)
-);
-
-const keyLight = new THREE.DirectionalLight(
-    0xffffff,
-    3.5
-);
-
-keyLight.position.set(-250, 350, 450);
-scene.add(keyLight);
-
-const blueLight = new THREE.PointLight(
-    0x167aff,
-    450,
-    900
-);
-
-blueLight.position.set(250, -100, 250);
-scene.add(blueLight);
-
-const rimLight = new THREE.PointLight(
-    0x70c9ff,
-    350,
-    800
-);
-
-rimLight.position.set(-250, -250, -100);
-scene.add(rimLight);
-
-
-// =====================================
-// CONSTRUÇÃO DO DADO
-// =====================================
-
-const dice = new THREE.Group();
-
-scene.add(dice);
-
-const bodyMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x0755d8,
-    metalness: 0.38,
-    roughness: 0.19,
-    clearcoat: 1,
-    clearcoatRoughness: 0.12
-});
-
-const body = new THREE.Mesh(
-    new RoundedBoxGeometry(
-        1.5,
-        1.5,
-        1.5,
-        8,
-        0.19
-    ),
-    bodyMaterial
-);
-
-dice.add(body);
-
-
-// Pontos brancos
-
-const pipMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xf4f8ff,
-    metalness: 0.15,
-    roughness: 0.22,
-    clearcoat: 1
-});
-
-const pipGeometry = new THREE.SphereGeometry(
-    0.095,
-    24,
-    16
-);
-
-const layouts = {
-
-    1: [[0, 0]],
-
-    2: [
-        [-0.34, 0.34],
-        [0.34, -0.34]
-    ],
-
-    3: [
-        [-0.34, 0.34],
-        [0, 0],
-        [0.34, -0.34]
-    ],
-
-    4: [
-        [-0.34, 0.34],
-        [0.34, 0.34],
-        [-0.34, -0.34],
-        [0.34, -0.34]
-    ],
-
-    5: [
-        [-0.34, 0.34],
-        [0.34, 0.34],
-        [0, 0],
-        [-0.34, -0.34],
-        [0.34, -0.34]
-    ],
-
-    6: [
-        [-0.34, 0.34],
-        [0.34, 0.34],
-        [-0.34, 0],
-        [0.34, 0],
-        [-0.34, -0.34],
-        [0.34, -0.34]
-    ]
-
-};
-
-const faces = [
-
-    { n: new THREE.Vector3(0,0,1), value: 1 },
-    { n: new THREE.Vector3(0,0,-1), value: 6 },
-    { n: new THREE.Vector3(1,0,0), value: 3 },
-    { n: new THREE.Vector3(-1,0,0), value: 4 },
-    { n: new THREE.Vector3(0,1,0), value: 2 },
-    { n: new THREE.Vector3(0,-1,0), value: 5 }
-
-];
-
-faces.forEach(face => {
-
-    const group = new THREE.Group();
-
-    group.quaternion.setFromUnitVectors(
-        new THREE.Vector3(0,0,1),
-        face.n
-    );
-
-    group.position.copy(face.n).multiplyScalar(0.755);
-
-    layouts[face.value].forEach(([x,y]) => {
-
-        const pip = new THREE.Mesh(
-            pipGeometry,
-            pipMaterial
-        );
-
-        pip.position.set(x,y,0.018);
-
-        group.add(pip);
-
-    });
-
-    dice.add(group);
-
-});
-
-
-// =====================================
-// TAMANHO E POSIÇÃO
-// =====================================
-
-let size = Math.min(
-    95,
-    Math.max(65, window.innerWidth * 0.19)
-);
-
-dice.scale.setScalar(size);
-
-dice.position.set(0, -5, 0);
-
-
-// =====================================
-// MOVIMENTO E FÍSICA
-// =====================================
-
-let velocity = new THREE.Vector2(0, 0);
-
-let angular = new THREE.Vector3(
-    0.012,
-    0.018,
-    0.009
-);
-
-let dragging = false;
-let moved = false;
-let hasRolled = false;
-
-let lastPointer = new THREE.Vector2();
-let lastTime = 0;
-
-const raycaster = new THREE.Raycaster();
-
-const pointer = new THREE.Vector2();
-
-
-// =====================================
-// DETECTAR O DADO
-// =====================================
-
-function updatePointer(event) {
-
-    pointer.x =
-        (event.clientX / window.innerWidth) * 2 - 1;
-
-    pointer.y =
-        -(event.clientY / window.innerHeight) * 2 + 1;
-
-}
-
-function intersectsDice(event) {
-
-    updatePointer(event);
-
-    raycaster.setFromCamera(pointer, camera);
-
-    return raycaster.intersectObject(body).length > 0;
-
-}
-
-
-// =====================================
-// ARRASTAR COM MOUSE OU DEDO
-// =====================================
-
-container.addEventListener(
-    "pointerdown",
-    event => {
-
-        if (!intersectsDice(event)) return;
-
-        dragging = true;
-        moved = false;
-
-        container.classList.add("dragging");
-
-        container.setPointerCapture(event.pointerId);
-
-        velocity.set(0, 0);
-
-        lastPointer.set(
-            event.clientX,
-            event.clientY
-        );
-
-        lastTime = performance.now();
-
-    }
-);
-
-
-container.addEventListener(
-    "pointermove",
-    event => {
-
-        if (!dragging) return;
-
-        const now = performance.now();
-
-        const elapsed = Math.max(
-            1,
-            now - lastTime
-        );
-
-        const dx = event.clientX - lastPointer.x;
-
-        const dy = -(event.clientY - lastPointer.y);
-
-        if (Math.abs(dx) + Math.abs(dy) > 2) {
-            moved = true;
-        }
-
-        dice.position.x += dx;
-        dice.position.y += dy;
-
-        velocity.set(
-            THREE.MathUtils.clamp(
-                dx / elapsed * 16,
-                -35,
-                35
-            ),
-            THREE.MathUtils.clamp(
-                dy / elapsed * 16,
-                -35,
-                35
-            )
-        );
-
-        angular.x += dy * 0.0008;
-        angular.y += dx * 0.0008;
-
-        lastPointer.set(
-            event.clientX,
-            event.clientY
-        );
-
-        lastTime = now;
-
-    }
-);
-
-
-// =====================================
-// SOLTAR O DADO
-// =====================================
-
-function releaseDice() {
-
-    if (!dragging) return;
-
-    dragging = false;
-
-    container.classList.remove("dragging");
-
-    if (!moved) {
-
-        velocity.set(
-            (Math.random() - 0.5) * 22,
-            (Math.random() - 0.5) * 22
-        );
-
-        angular.set(
-            0.09 + Math.random() * 0.08,
-            0.10 + Math.random() * 0.08,
-            0.06 + Math.random() * 0.08
-        );
-
-    } else {
-
-        angular.set(
-            velocity.y * 0.006,
-            velocity.x * 0.006,
-            (velocity.x - velocity.y) * 0.003
-        );
-
-    }
-
-    startExperience();
-
-}
-
-container.addEventListener(
-    "pointerup",
-    releaseDice
-);
-
-container.addEventListener(
-    "pointercancel",
-    releaseDice
-);
-
-
-// =====================================
-// EXPERIÊNCIA
-// =====================================
-
-function startExperience() {
-
-    if (hasRolled) return;
-
-    hasRolled = true;
-
-    instruction.textContent = "O JOGO COMEÇOU!";
-
-    result.classList.add("show");
-
-    setTimeout(() => {
-
-        result.classList.remove("show");
-
-    }, 2600);
-
-}
-
-window.revealSite = function() {
-
-    startExperience();
-
-};
-
-window.openLibrary = function() {
-
-    // Inseriremos aqui o endereço real da biblioteca.
-
-    alert(
-        "A biblioteca de jogos será conectada nesta etapa."
-    );
-
-};
-
-
-// =====================================
-// ÁREAS DE COLISÃO
-// =====================================
-
-function getObstacles() {
-
-    const ids = [
-        "header",
-        "footer"
-    ];
-
-    return ids
-
-        .map(id => {
-
+    <main class="experience">
+        <header class="hero">
+            <p class="brand">PASSA <span>O</span> DADO</p>
+            <h1>TODA GRANDE HISTÓRIA<br>COMEÇA COM UM PRIMEIRO LANCE.</h1>
+            <p class="hero-copy">Gire o dado e descubra o que preparamos para você.</p>
+        </header>
+
+        <div class="arena" id="arena">
+            <canvas id="dice-canvas" aria-hidden="true" hidden></canvas>
+            <p class="scene-status" id="scene-status" role="status" hidden></p>
+            <noscript>
+                <p class="scene-status">Ative o JavaScript para rolar o dado.</p>
+            </noscript>
+        </div>
+
+        <footer class="controls">
+            <button class="roll" id="roll" type="button" aria-describedby="hint" disabled>ROLAR O DADO</button>
+            <p class="hint" id="hint">Clique, toque ou arraste o dado e solte para lançar.</p>
+            <button class="skip" id="skip" type="button" aria-haspopup="dialog" aria-controls="welcome">Pular animação</button>
+        </footer>
+    </main>
+
+    <dialog class="welcome" id="welcome" aria-labelledby="welcome-title" aria-describedby="welcome-copy">
+        <div class="welcome-content">
+            <h2 id="welcome-title">MENOS TELAS.<br>MAIS MOMENTOS.</h2>
+            <p class="welcome-copy" id="welcome-copy">Reúna quem você gosta, descubra jogos incríveis e transforme encontros comuns em experiências que ficam na memória.</p>
+            <button class="cta" id="library" type="button">EXPLORAR JOGOS</button>
+            <p class="library-status" id="library-status" role="status"></p>
+            <form method="dialog">
+                <button class="back" type="submit">Voltar ao dado</button>
+            </form>
+        </div>
+    </dialog>
+
+    <script type="module">
+        const elementById = (id, type) => {
             const element = document.getElementById(id);
+            return element instanceof type ? element : null;
+        };
 
-            // Proteção contra elementos inexistentes.
+        const arena = elementById("arena", HTMLDivElement);
+        const canvas = elementById("dice-canvas", HTMLCanvasElement);
+        const sceneStatus = elementById("scene-status", HTMLParagraphElement);
+        const rollButton = elementById("roll", HTMLButtonElement);
+        const skipButton = elementById("skip", HTMLButtonElement);
+        const welcome = elementById("welcome", HTMLDialogElement);
+        const libraryButton = elementById("library", HTMLButtonElement);
+        const libraryStatus = elementById("library-status", HTMLParagraphElement);
 
-            if (!element) return null;
+        let welcomeShown = false;
+        let rollDice = null;
 
-            const rect = element.getBoundingClientRect();
-
-            return {
-
-                left: rect.left - window.innerWidth / 2,
-
-                right: rect.right - window.innerWidth / 2,
-
-                top: window.innerHeight / 2 - rect.top,
-
-                bottom: window.innerHeight / 2 - rect.bottom
-
-            };
-
-        })
-
-        .filter(Boolean);
-
-}
-
-
-// =====================================
-// COLISÃO COM TEXTOS E ÁREAS
-// =====================================
-
-function collideWithRect(rect, radius) {
-
-    const x = dice.position.x;
-    const y = dice.position.y;
-
-    const closestX = THREE.MathUtils.clamp(
-        x,
-        rect.left,
-        rect.right
-    );
-
-    const closestY = THREE.MathUtils.clamp(
-        y,
-        rect.bottom,
-        rect.top
-    );
-
-    const dx = x - closestX;
-    const dy = y - closestY;
-
-    const distance = Math.sqrt(
-        dx * dx + dy * dy
-    );
-
-    if (
-        distance < radius &&
-        distance > 0.001
-    ) {
-
-        const nx = dx / distance;
-        const ny = dy / distance;
-
-        dice.position.x += nx * (radius - distance);
-
-        dice.position.y += ny * (radius - distance);
-
-        const dot =
-            velocity.x * nx +
-            velocity.y * ny;
-
-        if (dot < 0) {
-
-            velocity.x -= 1.65 * dot * nx;
-
-            velocity.y -= 1.65 * dot * ny;
-
+        function showWelcome() {
+            if (!welcome?.isConnected || welcome.open) return;
+            welcome.showModal();
+            welcomeShown = true;
         }
 
-    }
-
-}
-
-
-// =====================================
-// ANIMAÇÃO PRINCIPAL
-// =====================================
-
-let previous = performance.now();
-
-function animate(now) {
-
-    requestAnimationFrame(animate);
-
-    const dt = Math.min(
-        (now - previous) / 16.67,
-        2
-    );
-
-    previous = now;
-
-    if (!dragging) {
-
-        dice.rotation.x += angular.x * dt;
-
-        dice.rotation.y += angular.y * dt;
-
-        dice.rotation.z += angular.z * dt;
-
-        dice.position.x += velocity.x * dt;
-
-        dice.position.y += velocity.y * dt;
-
-
-        // Perda gradual de velocidade
-
-        velocity.multiplyScalar(
-            Math.pow(0.988, dt)
-        );
-
-        angular.multiplyScalar(
-            Math.pow(0.994, dt)
-        );
-
-
-        // Limites da tela
-
-        const radius = size * 0.9;
-
-        const halfW = window.innerWidth / 2;
-
-        const halfH = window.innerHeight / 2;
-
-
-        if (dice.position.x > halfW - radius) {
-
-            dice.position.x = halfW - radius;
-
-            velocity.x = -Math.abs(velocity.x) * 0.82;
-
+        function setSceneStatus(message = "") {
+            if (canvas) canvas.hidden = Boolean(message);
+            if (rollButton) rollButton.disabled = Boolean(message);
+            if (sceneStatus) {
+                sceneStatus.textContent = message;
+                sceneStatus.hidden = !message;
+            }
         }
 
-
-        if (dice.position.x < -halfW + radius) {
-
-            dice.position.x = -halfW + radius;
-
-            velocity.x = Math.abs(velocity.x) * 0.82;
-
-        }
-
-
-        if (dice.position.y > halfH - radius) {
-
-            dice.position.y = halfH - radius;
-
-            velocity.y = -Math.abs(velocity.y) * 0.82;
-
-        }
-
-
-        if (dice.position.y < -halfH + radius) {
-
-            dice.position.y = -halfH + radius;
-
-            velocity.y = Math.abs(velocity.y) * 0.82;
-
-        }
-
-
-        // Colisões com as áreas de texto
-
-        const obstacles = getObstacles();
-
-        obstacles.forEach(rect => {
-
-            collideWithRect(rect, radius * 0.85);
-
+        rollButton?.addEventListener("click", () => rollDice?.());
+        skipButton?.addEventListener("click", showWelcome);
+        libraryButton?.addEventListener("click", () => {
+            if (libraryStatus) {
+                libraryStatus.textContent = "A biblioteca de jogos ainda será conectada.";
+            }
         });
 
-    }
+        async function startScene() {
+            if (!arena?.isConnected || !canvas?.isConnected || !arena.contains(canvas)) {
+                setSceneStatus("O dado 3D está indisponível.");
+                return;
+            }
 
+            try {
+                const context = canvas.getContext("webgl2", { alpha: true, antialias: true });
+                if (!context) {
+                    setSceneStatus("O dado 3D está indisponível neste navegador.");
+                    return;
+                }
 
-    renderer.render(scene, camera);
+                const [THREE, { RoundedBoxGeometry }] = await Promise.all([
+                    import("three"),
+                    import("three/addons/geometries/RoundedBoxGeometry.js")
+                ]);
 
-}
+                if (!arena.isConnected || !canvas.isConnected || !arena.contains(canvas)) {
+                    setSceneStatus("O dado 3D está indisponível.");
+                    return;
+                }
 
+                createScene(THREE, RoundedBoxGeometry, context);
+            } catch {
+                setSceneStatus("Não foi possível carregar o dado 3D.");
+            }
+        }
 
-// =====================================
-// REDIMENSIONAMENTO
-// =====================================
+        function createScene(THREE, RoundedBoxGeometry, context) {
+            const renderer = new THREE.WebGLRenderer({ canvas, context, alpha: true, antialias: true });
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.12;
 
-function resize() {
+            const scene = new THREE.Scene();
+            const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 1000);
+            camera.position.z = 500;
+            camera.updateMatrixWorld();
 
-    const w = window.innerWidth;
+            const mainLight = new THREE.DirectionalLight(0xf3f8ff, 3);
+            mainLight.position.set(-3, 5, 7);
+            const rimLight = new THREE.DirectionalLight(0x83caff, 1.5);
+            rimLight.position.set(4, 1, -4);
+            scene.add(mainLight, rimLight, new THREE.HemisphereLight(0xd8ecff, 0x354c88, 1.65));
 
-    const h = window.innerHeight;
+            const cornerRadius = 0.22;
+            const pipDepth = 0.046;
+            const cornerCore = 1 - cornerRadius;
+            const enclosingRadius = Math.sqrt(3) + pipDepth;
+            const body = new THREE.Mesh(
+                new RoundedBoxGeometry(2, 2, 2, 4, cornerRadius),
+                new THREE.MeshPhysicalMaterial({
+                    color: 0x0755d8,
+                    metalness: 0.21,
+                    roughness: 0.25,
+                    clearcoat: 1,
+                    clearcoatRoughness: 0.19
+                })
+            );
 
-    camera.left = -w / 2;
+            const dice = new THREE.Group();
+            dice.rotation.set(0.37, -0.58, -0.19);
+            dice.add(body, makePips(THREE, pipDepth));
+            scene.add(dice);
 
-    camera.right = w / 2;
+            const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+            const idleSpin = new THREE.Vector3(0.27, 0.41, 0.12);
+            const still = new THREE.Vector3();
+            const angularVelocity = motionPreference.matches ? still.clone() : idleSpin.clone();
+            const velocity = new THREE.Vector2();
+            const dragVelocity = new THREE.Vector2();
+            const raycaster = new THREE.Raycaster();
+            const pointer = new THREE.Vector2();
+            const hit = [];
+            const rotationMatrix = new THREE.Matrix4();
+            const rotation = new THREE.Quaternion();
+            const rotationStep = new THREE.Euler();
 
-    camera.top = h / 2;
+            let width = 0;
+            let height = 0;
+            let frame = null;
+            let lastTime = null;
+            let revealIn = null;
+            let drag = null;
+            let contextReady = !context.isContextLost();
+            let useProjectedBounds = true;
+            let motionReady = true;
 
-    camera.bottom = -h / 2;
+            function clampPosition(bounce = false) {
+                // O grid reserva linhas para os textos. Os limites do dado são os da arena.
+                let halfWidth = enclosingRadius;
+                let halfHeight = halfWidth;
 
-    camera.updateProjectionMatrix();
+                if (useProjectedBounds) {
+                    try {
+                        const m = rotationMatrix.makeRotationFromQuaternion(dice.quaternion).elements;
+                        halfWidth = cornerCore * (Math.abs(m[0]) + Math.abs(m[4]) + Math.abs(m[8])) + cornerRadius + pipDepth;
+                        halfHeight = cornerCore * (Math.abs(m[1]) + Math.abs(m[5]) + Math.abs(m[9])) + cornerRadius + pipDepth;
+                    } catch {
+                        // Usa a esfera que envolve o dado se o cálculo da projeção falhar.
+                        useProjectedBounds = false;
+                    }
+                }
 
-    renderer.setSize(w, h);
+                const scale = dice.scale.x;
+                const limitX = Math.max(0, width / 2 - scale * halfWidth - 4);
+                const limitY = Math.max(0, height / 2 - scale * halfHeight - 4);
+                const { position } = dice;
+                const x = THREE.MathUtils.clamp(position.x, -limitX, limitX);
+                const y = THREE.MathUtils.clamp(position.y, -limitY, limitY);
 
-    size = Math.min(
-        95,
-        Math.max(65, w * 0.19)
-    );
+                if (bounce && (position.x - x) * velocity.x > 0) velocity.x *= -0.78;
+                if (bounce && (position.y - y) * velocity.y > 0) velocity.y *= -0.78;
+                position.set(x, y, 0);
+            }
 
-    dice.scale.setScalar(size);
+            function applyRotation(x, y, z) {
+                rotation.setFromEuler(rotationStep.set(x, y, z));
+                dice.quaternion.premultiply(rotation).normalize();
+            }
 
-    dice.position.x = THREE.MathUtils.clamp(
-        dice.position.x,
-        -w / 2 + size,
-        w / 2 - size
-    );
+            function advance(dt) {
+                if (!drag) {
+                    if (motionPreference.matches) {
+                        velocity.set(0, 0);
+                        angularVelocity.set(0, 0, 0);
+                    }
 
-    dice.position.y = THREE.MathUtils.clamp(
-        dice.position.y,
-        -h / 2 + size,
-        h / 2 - size
-    );
+                    dice.position.x += velocity.x * dt;
+                    dice.position.y += velocity.y * dt;
+                    applyRotation(angularVelocity.x * dt, angularVelocity.y * dt, angularVelocity.z * dt);
+                    clampPosition(true);
 
-}
+                    velocity.multiplyScalar(Math.exp(-1.95 * dt));
+                    angularVelocity.lerp(motionPreference.matches ? still : idleSpin, 1 - Math.exp(-1.65 * dt));
+                    if (velocity.lengthSq() < 64) velocity.set(0, 0);
+                }
 
-window.addEventListener("resize", resize);
+                if (revealIn !== null && !drag) {
+                    revealIn -= dt;
+                    if (revealIn <= 0) {
+                        revealIn = null;
+                        showWelcome();
+                    }
+                }
+            }
 
+            function canRender() {
+                return contextReady && width > 0 && height > 0
+                    && arena.isConnected && canvas.isConnected && !welcome?.open;
+            }
 
-// =====================================
-// INICIAR
-// =====================================
+            function queueFrame() {
+                if (frame === null && canRender()) frame = requestAnimationFrame(animate);
+            }
 
-requestAnimationFrame(animate);
+            function animate(now) {
+                frame = null;
+                if (!canRender()) {
+                    lastTime = null;
+                    return;
+                }
 
-</script>
+                const dt = lastTime === null ? 0 : Math.min((now - lastTime) / 1000, 0.05);
+                lastTime = now;
 
+                if (motionReady) {
+                    try {
+                        advance(dt);
+                    } catch {
+                        motionReady = false;
+                        stopDrag();
+                        velocity.set(0, 0);
+                        angularVelocity.set(0, 0, 0);
+                        dice.position.set(0, 0, 0);
+                    }
+                }
+
+                try {
+                    renderer.render(scene, camera);
+                } catch {
+                    contextReady = false;
+                    setSceneStatus("O dado 3D está indisponível.");
+                }
+
+                if (motionReady && (!motionPreference.matches || revealIn !== null)) {
+                    queueFrame();
+                } else {
+                    lastTime = null;
+                }
+            }
+
+            function resize() {
+                if (!arena.isConnected || !canvas.isConnected) return;
+                const nextWidth = arena.clientWidth;
+                const nextHeight = arena.clientHeight;
+                if (nextWidth < 1 || nextHeight < 1) return;
+                const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.75, Math.sqrt(1800000 / (nextWidth * nextHeight)));
+
+                if (width === nextWidth && height === nextHeight && pixelRatio === renderer.getPixelRatio()) {
+                    queueFrame();
+                    return;
+                }
+
+                stopDrag();
+                if (width > 0) dice.position.x *= nextWidth / width;
+                if (height > 0) dice.position.y *= nextHeight / height;
+                width = nextWidth;
+                height = nextHeight;
+
+                camera.left = -width / 2;
+                camera.right = width / 2;
+                camera.top = height / 2;
+                camera.bottom = -height / 2;
+                camera.updateProjectionMatrix();
+                dice.scale.setScalar(Math.min(88, width * 0.17, height * 0.235));
+                clampPosition();
+
+                renderer.setDrawingBufferSize(width, height, pixelRatio);
+                queueFrame();
+            }
+
+            function stopDrag() {
+                if (!drag) return;
+                const { id } = drag;
+                drag = null;
+                canvas.classList.remove("dragging");
+
+                if (canvas.isConnected && canvas.hasPointerCapture(id)) {
+                    canvas.releasePointerCapture(id);
+                }
+            }
+
+            function launch(fromDrag = false) {
+                if (!canRender() || !motionReady || drag) return;
+
+                if (motionPreference.matches) {
+                    velocity.set(0, 0);
+                    applyRotation(0.47, 0.78, 0.23);
+                    clampPosition();
+                    if (!welcomeShown) showWelcome();
+                } else {
+                    if (!fromDrag) {
+                        const direction = Math.random() * Math.PI * 2;
+                        const speed = Math.min(940, Math.max(410, Math.min(width, height) * 1.85));
+                        velocity.set(Math.cos(direction) * speed, Math.sin(direction) * speed);
+                    }
+
+                    angularVelocity.set(
+                        3.4 + velocity.y * 0.005,
+                        4.9 + velocity.x * 0.005,
+                        2.15 + (velocity.x - velocity.y) * 0.0015
+                    );
+                    if (!welcomeShown && revealIn === null) revealIn = 1.65;
+                }
+
+                queueFrame();
+            }
+
+            canvas.addEventListener("pointerdown", event => {
+                if (!canRender() || !motionReady || drag || !event.isPrimary || event.button !== 0) return;
+
+                pointer.set(event.offsetX / width * 2 - 1, 1 - event.offsetY / height * 2);
+                raycaster.setFromCamera(pointer, camera);
+                dice.updateMatrixWorld(true);
+                hit.length = 0;
+                if (!raycaster.intersectObject(body, false, hit).length) return;
+
+                drag = {
+                    id: event.pointerId,
+                    startX: event.clientX,
+                    startY: event.clientY,
+                    lastX: event.clientX,
+                    lastY: event.clientY,
+                    lastTime: event.timeStamp,
+                    moved: false
+                };
+                velocity.set(0, 0);
+                dragVelocity.set(0, 0);
+                canvas.classList.add("dragging");
+                try {
+                    canvas.setPointerCapture(event.pointerId);
+                } catch {
+                    // Os eventos registrados na janela também encerram o arrasto.
+                }
+            });
+
+            window.addEventListener("pointermove", event => {
+                if (!drag || event.pointerId !== drag.id) return;
+                const { clientX: x, clientY: y, timeStamp } = event;
+
+                if (!drag.moved && Math.hypot(x - drag.startX, y - drag.startY) < 5) return;
+                drag.moved = true;
+
+                const dx = x - drag.lastX;
+                const dy = drag.lastY - y;
+                const elapsed = Math.max(8, timeStamp - drag.lastTime) / 1000;
+                const maxSpeed = Math.min(1500, Math.max(550, Math.min(width, height) * 3.4));
+                dragVelocity.set(dx / elapsed, dy / elapsed).clampLength(0, maxSpeed);
+
+                dice.position.x += dx;
+                dice.position.y += dy;
+                applyRotation(
+                    THREE.MathUtils.clamp(-dy * 0.008, -0.65, 0.65),
+                    THREE.MathUtils.clamp(dx * 0.008, -0.65, 0.65),
+                    0
+                );
+                clampPosition();
+
+                drag.lastX = x;
+                drag.lastY = y;
+                drag.lastTime = timeStamp;
+                queueFrame();
+            });
+
+            window.addEventListener("pointerup", event => {
+                if (!drag || event.pointerId !== drag.id) return;
+                const { moved, lastTime: lastMoveTime } = drag;
+                stopDrag();
+                if (moved) {
+                    const pause = Math.max(0, event.timeStamp - lastMoveTime - 45);
+                    velocity.copy(dragVelocity).multiplyScalar(Math.exp(-pause / 85));
+                }
+                launch(moved);
+            });
+
+            function cancelPointer(event) {
+                if (drag && event.pointerId === drag.id) stopDrag();
+            }
+
+            window.addEventListener("pointercancel", cancelPointer);
+            canvas.addEventListener("lostpointercapture", cancelPointer);
+            window.addEventListener("blur", stopDrag);
+            window.addEventListener("resize", resize);
+            if (typeof ResizeObserver === "function") new ResizeObserver(resize).observe(arena);
+            motionPreference.addEventListener("change", queueFrame);
+            document.addEventListener("visibilitychange", () => {
+                lastTime = null;
+                if (document.hidden) stopDrag();
+                else queueFrame();
+            });
+
+            skipButton?.addEventListener("click", () => {
+                stopDrag();
+                revealIn = null;
+            });
+
+            welcome?.addEventListener("close", () => {
+                lastTime = null;
+                queueFrame();
+            });
+
+            canvas.addEventListener("webglcontextlost", event => {
+                event.preventDefault();
+                contextReady = false;
+                if (frame !== null) cancelAnimationFrame(frame);
+                frame = null;
+                lastTime = null;
+                stopDrag();
+                setSceneStatus("Recuperando a cena 3D…");
+            });
+
+            canvas.addEventListener("webglcontextrestored", () => {
+                contextReady = true;
+                setSceneStatus();
+                resize();
+            });
+
+            rollDice = launch;
+            resize();
+            if (contextReady) {
+                setSceneStatus();
+            } else {
+                setSceneStatus("Recuperando a cena 3D…");
+            }
+        }
+
+        function makePips(THREE, depth) {
+            const gap = 0.43;
+            const topLeft = [-gap, gap];
+            const topRight = [gap, gap];
+            const center = [0, 0];
+            const bottomLeft = [-gap, -gap];
+            const bottomRight = [gap, -gap];
+            const layouts = [
+                [center],
+                [topLeft, bottomRight],
+                [topLeft, center, bottomRight],
+                [topLeft, topRight, bottomLeft, bottomRight],
+                [topLeft, topRight, center, bottomLeft, bottomRight],
+                [topLeft, topRight, [-gap, 0], [gap, 0], bottomLeft, bottomRight]
+            ];
+            const normals = [
+                [0, 0, 1], [0, 1, 0], [1, 0, 0], [-1, 0, 0], [0, -1, 0], [0, 0, -1]
+            ];
+
+            const pipRadius = 0.118;
+            const pips = new THREE.InstancedMesh(
+                new THREE.SphereGeometry(pipRadius, 14, 10),
+                new THREE.MeshStandardMaterial({ color: 0xf3f8ff, roughness: 0.32 }),
+                21
+            );
+
+            const stamp = new THREE.Object3D();
+            const front = new THREE.Vector3(0, 0, 1);
+            const normal = new THREE.Vector3();
+            stamp.scale.z = depth / pipRadius;
+            let index = 0;
+
+            for (const [face, layout] of layouts.entries()) {
+                stamp.quaternion.setFromUnitVectors(front, normal.set(...normals[face]));
+                for (const [x, y] of layout) {
+                    stamp.position.set(x, y, 0.998).applyQuaternion(stamp.quaternion);
+                    stamp.updateMatrix();
+                    pips.setMatrixAt(index, stamp.matrix);
+                    index += 1;
+                }
+            }
+
+            pips.instanceMatrix.needsUpdate = true;
+            pips.computeBoundingSphere();
+            return pips;
+        }
+
+        setSceneStatus("Carregando o dado 3D…");
+        void startScene();
+    </script>
 </body>
 </html>
